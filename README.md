@@ -42,8 +42,7 @@ Cockpit isn't tied to one profession, one workflow, or one AI provider.
 
 - **Windows:** No separate Node.js installation required. Cockpit downloads a private Node.js 24 runtime when needed.
 - **Git:** Optional for general use; recommended for software development.
-- **AI:** At least one supported AI provider or local model must be configured. The setup wizard helps you get started.
-  Download and install first. Logged in as the user that runs Cockpit:
+- **AI:** The setup wizard helps you configure a supported AI option. Depending on the provider, you may need to install The AI and sign in first.
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`claude`), and/or
   - [Codex CLI](https://github.com/openai/codex) (`codex`), and/or
   - Pi (the `pi` coding-agent CLI) with [Ollama](https://ollama.com) for local models.
