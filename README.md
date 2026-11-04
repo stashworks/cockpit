@@ -1,47 +1,45 @@
 # Cockpit
 
-Cockpit is a folder-per-project IDE for working with AI coders. You open any folder and Cockpit
-gives it a control room: a conversation with the AI of your choice, a living map of the code's
-architecture, a ticket process, and a queue that hands work to coding agents - all of it kept in
-that folder's own `.cockpit\` subfolder, the way `.vscode\` or `.obsidian\` work. Move the folder
-and its memory moves with it.
+### Your files. Your AI. Your workspace.
 
-It is built for people who supervise AI that writes code faster than anyone can read it: you work
-at the level of features, tickets and architecture, and drill down to the code only when you care.
-The design is in [docs/generic-ide.md](docs/generic-ide.md); what it should feel like is in
-[docs/spirit.md](docs/spirit.md).
+**A local-first personal AI assistant that works with your files, remembers your conversations, and lets you use the AI models you choose.**
 
-## What it does
+Cockpit brings your projects, documents, research, and AI conversations together in one workspace, without requiring you to move your files into another platform or surrender control of your data.
 
-- **A project is a folder.** Open a folder and Cockpit creates `.cockpit\` inside it: the project's
-  rules for the AI (`project.md`), its database (`cockpit.db`, SQLite), conversations, layouts,
-  decisions and logs. Nothing in `.cockpit\` is an absolute path, and it is never committed to the
-  project's git. A project loads when you open it and goes quiet when nobody is looking.
-- **Any AI, one conversation.** Each model runs through its own harness - **Claude Code** for
-  Claude, **Codex CLI** for Codex, **Pi** with **Ollama** for local models - behind one adapter
-  interface ([docs/harness-interface.md](docs/harness-interface.md)). Cockpit owns the transcript,
-  so you can switch models mid-conversation and the next one carries on.
-- **Standing rules for every AI.** `prompts/doctrine.md` (rules learned the hard way) and
-  `prompts/global.md` (how any AI behaves inside Cockpit) are read on every turn, then the
-  project's own `project.md`, then each plugin's `rules.md`. Edit them to suit yourself.
-- **The architecture map** (Architecture plugin): scans the code (TypeScript/Node, PHP, Markdown)
-  into a graph of pages, routes, files and tables, with lenses for features, ownership, risk and
-  the problems AI-written code tends to have (duplication, tables with many writers, dead routes,
-  tests that assert nothing, secrets in code, ...).
-- **Tickets and the queue** (Tickets, GitHub and Coding plugins): the AI drafts a ticket with the
-  files it may touch, you approve it, a coding agent works it in its own git worktree, and every
-  turn gets a verdict (findings, tests, touched = declared). The fleet card switches agents on and
-  off and shows the one queue across all projects. With the GitHub plugin, tickets are GitHub
-  issues and the board follows their labels.
-- **Tests, backups, security checks** (Coding plugin): runs the project's tests after each turn,
-  browser flow tests with Playwright, a DAST pass with OWASP ZAP, Semgrep, and backups of each
-  project's code, database and `.cockpit\` folder.
+Connect an existing folder, choose an AI model, and get to work. Plan a vacation, organize research, explore ideas, manage projects, or build software. Cockpit works with the files you already have, keeping your conversations and AI-generated content on your own computer.
+
+**Switch AI models without starting over.** Begin a conversation with one model, switch to another halfway through, and continue where you left off. Your conversation history belongs to Cockpit, not to any particular AI provider.
+
+**Work online or completely offline.** Connect to cloud AI providers when you want their capabilities, or use local models to work without an internet connection. You decide which models to use and what information they can access.
+
+## Why Cockpit?
+
+- **Your data stays yours.** Files, conversations, and project history are stored locally in accessible files, not locked inside a proprietary cloud workspace.
+- **Any AI, one conversation.** Switch between supported AI models without losing your conversation history or starting over.
+- **Your existing folders become workspaces.** Organize and work with documents, notes, research, code, and projects without importing everything into a new system.
+- **More than a chatbot.** Work with AI across your projects and files, with tools and capabilities that go beyond answering questions.
+- **Built for everyone.** Whether you're a hobbyist, researcher, writer, vibe coder, or someone organizing everyday life, Cockpit adapts to what you're working on.
+- **Local-first by design.** Work with local AI models entirely offline, or connect to cloud models when you choose.
+
+## One workspace. Endless possibilities.
+
+**Personal assistant:** Organize your plans, projects, documents, and everyday activities.
+
+**Research and learning:** Explore ideas, work through complex problems, and maintain context across your notes and conversations.
+
+**Planning and organization:** Plan vacations, organize household projects, and bring scattered information together.
+
+**Software development:** Work with AI coding agents, inspect architecture, manage repositories, and build software with greater visibility and control.
+
+Cockpit isn't tied to one profession, one workflow, or one AI provider.
+
+**It's your workspace. You decide what to do with it.**
 
 ## Requirements
 
-- **Node.js 24 or newer** (Cockpit uses the built-in `node:sqlite`).
-- **git** on the PATH.
-- **At least one harness CLI**, installed and logged in as the user that runs Cockpit:
+- **Node.js 24 or newer** (Optional - Cockpit uses the built-in `node:sqlite`).
+- **git** Optional - on the PATH.
+- **At least one installed AI**, Download and install first. Logged in as the user that runs Cockpit:
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`claude`), and/or
   - [Codex CLI](https://github.com/openai/codex) (`codex`), and/or
   - Pi (the `pi` coding-agent CLI) with [Ollama](https://ollama.com) for local models.
