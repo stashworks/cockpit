@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security problem privately
+    url: https://github.com/stashworks/cockpit/security/advisories/new
+    about: Please don't open a public issue for security problems.
+  - name: Commercial license
+    url: https://github.com/stashworks/cockpit/blob/main/COMMERCIAL-LICENSE.md
+    about: For organizations that want to use Cockpit without the AGPL's terms.
