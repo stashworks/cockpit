@@ -1,0 +1,18 @@
+{
+  "_note": "Where a ticket is in the process, derived from what GitHub can prove. Four stages are derived from PRs and cannot drift; two need a label because no machine can see a person looking. Evaluated top to bottom on an OPEN ticket; the LAST rule whose test is true wins, so later rows are 'further along'. A project overrides in <project>/.cockpit/plugins/github.stages.json. Label names are the project's own vocabulary.",
+  "labels": {
+    "inProgress": "status:in-progress",
+    "verified": "status:verified",
+    "live": "status:live",
+    "modulePrefix": "module:"
+  },
+  "stages": [
+    { "id": "not-started", "title": "Not started", "rule": "ticket exists, nothing else",            "test": "always" },
+    { "id": "in-progress", "title": "In progress", "rule": "claimed by a coder (label), no PR yet",  "test": "label:inProgress" },
+    { "id": "in-review",   "title": "In review",   "rule": "a PR is open for it",                    "test": "pr:open" },
+    { "id": "in-uat",      "title": "In UAT",      "rule": "a PR merged; on main, not yet verified", "test": "pr:merged" },
+    { "id": "verified",    "title": "Verified",    "rule": "a person confirmed it in UAT (label)",    "test": "label:verified" },
+    { "id": "live",        "title": "Live",        "rule": "confirmed live for customers (label)",    "test": "label:live" }
+  ],
+  "closed": { "id": "done", "title": "Done", "rule": "ticket closed" }
+}

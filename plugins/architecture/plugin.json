@@ -1,0 +1,49 @@
+{
+  "name": "architecture",
+  "label": "Architecture",
+  "group": "coding",
+  "purpose": "The map of the project, drawn: what it is made of, what reaches what, and the lenses to ask questions of it. The engine reads every project on its own (the scan runs whether this is on or off); this switch only shows the map.",
+  "setsType": true,
+  "questions": [
+    {
+      "key": "type",
+      "label": "What kind of project is this?",
+      "type": "choice",
+      "help": "picks the scanner",
+      "options": [
+        {
+          "value": "website-php",
+          "label": "Website (PHP pages, HTML, JS)"
+        },
+        {
+          "value": "markdown",
+          "label": "Markdown notes (Obsidian vault)"
+        },
+        {
+          "value": "typescript",
+          "label": "Node / TypeScript (plain Node apps, pnpm monorepos, Next.js, Hono, SQL)"
+        }
+      ],
+      "default": "typescript"
+    },
+    {
+      "key": "liveUrl",
+      "label": "Live URL (optional)",
+      "type": "text",
+      "placeholder": "http://localhost:9000",
+      "help": "where the site actually runs; a later scan will crawl it and join what is served to what is in the code"
+    },
+    {
+      "key": "skip",
+      "label": "Folders to skip",
+      "type": "text",
+      "default": ".cockpit,.git,node_modules,vendor,cache,.vscode,nbproject,aeon_unzipped,dist,.next,.turbo,coverage,build,.local-notes,.claude,.githooks",
+      "help": "comma-separated; machinery and bulk that is not the project"
+    }
+  ],
+  "cards": [
+    "cards/architecture.js"
+  ],
+  "scan": "scan.js",
+  "core": true
+}

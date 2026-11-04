@@ -1,0 +1,29 @@
+{
+  "name": "database",
+  "label": "Database",
+  "group": "coding",
+  "purpose": "The project's live database as MySQL holds it: every table with its rows, size, columns, indexes and keys, and the latest 50 rows of each - read through the mysql client every few minutes while the room is open. On: Cockpit finds the credentials file on its own (the project's .env, the usual PHP config files, the config folder beside the apps) and says so on the card; only when it cannot does it need telling where. Read-only by construction: nothing here writes to a database, and the password is read at scan time and never kept. What the code names but the database lacks, and what the database holds but no code touches, show on Problems.",
+  "every": 10,
+  "questions": [
+    {
+      "key": "credentials",
+      "label": "Where the database credentials are (only if Cockpit cannot find them)",
+      "type": "text",
+      "default": "",
+      "help": "Empty: Cockpit looks on its own - the project's .env, the usual PHP config files (config/db.php…), and the config folder beside the apps (…/config/<project>/db.php or .env). Otherwise a file inside the project or an absolute path: a .env with DB_HOST / DB_PORT / DB_NAME / DB_USER / DB_PASSWORD (or DATABASE_URL), or a PHP file that returns ['host', 'dbname', 'username', 'password']. Read at scan time; the password is never stored or shown.",
+      "optional": true
+    },
+    {
+      "key": "mysql",
+      "label": "mysql client (optional)",
+      "type": "text",
+      "placeholder": "C:\\Program Files\\MySQL\\MySQL Server 8.4\\bin\\mysql.exe",
+      "help": "leave empty to use mysql on PATH, else the newest MySQL Server install on this machine",
+      "optional": true
+    }
+  ],
+  "cards": [
+    "cards/database.js"
+  ],
+  "scan": "scan.js"
+}

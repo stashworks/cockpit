@@ -1,0 +1,26 @@
+{
+  "_note": "The reads the Tickets cards make of the tk_ tables, by name: GET /api/p/<id>/plugins/tickets/q/<name>. The tickets themselves come from /api/p/<id>/tickets (files, engine/tickets.js). Read-only by construction; edit here, no restart.",
+  "meta": {
+    "sql": "SELECT key, value FROM tk_meta",
+    "params": []
+  },
+  "deploys": {
+    "sql": "SELECT sha, short, subject, author, at, merge, tickets, pr FROM tk_deploy ORDER BY at DESC LIMIT 300",
+    "params": []
+  },
+  "envs": {
+    "sql": "SELECT env, at, version, ok, note FROM tk_env WHERE at = (SELECT MAX(at) FROM tk_env AS e2 WHERE e2.env = tk_env.env) ORDER BY env",
+    "params": []
+  },
+  "env-history": {
+    "sql": "SELECT env, at, version, ok FROM tk_env WHERE env = ? ORDER BY at DESC LIMIT 50",
+    "params": [
+      "env"
+    ]
+  },
+  "releases": {
+    "sql": "SELECT env, at, sha, prev FROM tk_release ORDER BY at DESC LIMIT 100",
+    "params": [],
+    "_note": "when each environment actually started serving a different commit - the real deploys"
+  }
+}

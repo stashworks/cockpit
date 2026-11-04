@@ -1,0 +1,116 @@
+/* The look (from the DarkDasher reference): near-black indigo ground, cards one step lighter with a
+   hairline border and rounded corners - flat, no glow - and ONE accent, violet to cyan, used only where a hand acts (the
+   Send, the active tab, a switch that is on, a picked chip). Inter for everything; JetBrains Mono for numbers and the tiny
+   uppercase labels that name a section. Deltas and states are green / amber / red on a tint. Loaded after app.css and
+   engine.css; the mockup it came from is docs/look/mock-dd-*.png. Earlier looks (ice glow, Lora) are in git. */
+:root {
+  --bg: #0a0d1a; --bg2: #0d1020; --panel: #12162b; --panel2: #181d38; --line: #1c2140; --line2: #282e52;
+  --text: #eceef8; --muted: #8b91b5; --dim: #5b628a;
+  --violet: #8b5cf6; --cyan: #22d3ee; --blue: #6d7cff; --green: #22c55e; --amber: #f59e0b; --red: #ef4444;
+  --accent: #8b5cf6; --accent-ink: #fff;
+  --grad: linear-gradient(135deg, #8b5cf6, #22d3ee);
+  --ring: 0 0 0 1px rgba(139, 92, 246, .5);
+  --title: "Inter", system-ui, "Segoe UI", sans-serif; --body: "Inter", system-ui, "Segoe UI", sans-serif; --num: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  --serif: var(--title); --sans: var(--body); --mono: var(--num);
+}
+html, body { font: 14px/1.55 var(--sans); background: var(--bg); color: var(--text); letter-spacing: 0 }
+::selection { background: rgba(139, 92, 246, .35) }
+* { scrollbar-width: thin; scrollbar-color: var(--line2) transparent }
+*::-webkit-scrollbar { width: 8px; height: 8px } *::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 4px } *::-webkit-scrollbar-track { background: transparent }
+b, strong { font-weight: 600 }
+
+/* the bar: quiet; the active tab is a violet tint */
+.top { background: var(--bg2); border-bottom: 1px solid var(--line); box-shadow: none; padding: 10px 22px }
+.nav { gap: 4px } .nav a { white-space: nowrap; font: 500 13.5px var(--sans); letter-spacing: 0; padding: 8px 16px; border-radius: 10px; color: var(--muted); border-bottom: 0; transition: color .15s, background .15s }
+.nav a:hover { color: var(--text) } .nav a.on { background: rgba(139, 92, 246, .14); color: #fff; box-shadow: inset 0 0 0 1px rgba(139, 92, 246, .35) }
+.tools { font-family: var(--sans) } .tools button, .tools select { background: transparent; color: var(--muted); border: 1px solid var(--line2); border-radius: 10px; padding: 5px 11px; font: 500 12.5px var(--sans) }
+.tools button:hover, .tools select:hover { color: var(--text); border-color: var(--violet); box-shadow: none }
+.search { background: #161a30; border: 1px solid var(--line2); border-radius: 20px; font: 13px var(--sans) } .search:focus { box-shadow: var(--ring); border-color: var(--violet) }
+.swbtn b { font-family: var(--sans); font-weight: 600; font-size: 16px }
+
+/* the cards: a lighter plane with a hairline; the title is the only ornament */
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: none; padding: 18px 22px 20px }
+.card:hover { border-color: var(--line2) }
+.card.promoted { border-color: rgba(139, 92, 246, .45); box-shadow: none }
+.ch { margin-bottom: 10px; padding-bottom: 6px; border-bottom: 0 }
+.ch h3 { font: 600 18px/1.2 var(--sans); letter-spacing: -.01em; text-transform: none; color: #fff; display: block; text-shadow: none }
+.ch h3::before { display: none }
+.ch .ch-r { font-family: var(--mono); font-size: 11px; color: var(--dim); font-variant-numeric: tabular-nums }
+.ch .grip { color: var(--line2) } .ch .more { color: var(--dim) }
+.rz { border-color: var(--line2) }
+
+/* labels that name a section: tiny mono capitals, like the reference's USERS / SESSIONS */
+.ar-sec, .attg, .tkf-l, table.tb th { font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.attg { border-top: 1px solid var(--line) }
+.plh { font: 600 24px var(--sans); letter-spacing: -.02em; color: var(--text); text-transform: none }
+.fd-hd > b, .tkhead > b { font: 600 18px var(--sans); letter-spacing: -.01em; text-transform: none; color: var(--text) }
+.dc-group > b { font: 600 15px var(--sans); text-transform: none; color: var(--text); letter-spacing: 0 }
+
+/* numbers */
+.ch-r, .n, .lp td, td, .bl-c b, .ft-counts, .att .who, .tk-row b, .fa-why, .stat { font-variant-numeric: tabular-nums }
+.bl-c b, .ft-counts, .lp td:not(:first-child), table.tb td:not(:first-child) { font-family: var(--mono); font-size: 12px }
+
+/* actions: the one gradient, flat */
+.btn { font: 600 13px var(--sans); background: var(--grad); color: #fff; border: 0; border-radius: 10px; padding: 8px 16px; box-shadow: none; transition: box-shadow .15s }
+.btn:hover { box-shadow: 0 6px 18px rgba(139, 92, 246, .35) } .btn:active { transform: translateY(1px) }
+.btn.ghost { background: var(--panel2); border: 1px solid var(--line2); color: var(--text); font-weight: 500; box-shadow: none } .btn.ghost:hover { border-color: var(--violet); box-shadow: none; background: #1d2344 }
+.btn.sm, .btn.ghost.sm { padding: 3px 10px; font-size: 12px }
+.sw .swk { background: var(--line2); border: 0 } .sw input:checked + .swk { background: linear-gradient(90deg, #8b5cf6, #22d3ee); border: 0; box-shadow: none } .sw .swk::before { background: #fff }
+.tkx { color: var(--dim); cursor: pointer; user-select: none } .tkx:hover { color: var(--text) }
+
+/* chips and pills: a tint, no border */
+.pill, .lg, .lab, .sr .k, .attsum .who { font-family: var(--sans); border: 0; border-radius: 8px; letter-spacing: 0; background: var(--panel2); color: var(--muted); padding: 2px 8px }
+.lg.on, .lg.pick.on, .attsum .who.on { background: rgba(139, 92, 246, .18); color: #fff; box-shadow: inset 0 0 0 1px rgba(139, 92, 246, .4) }
+.lg.ok { background: rgba(34, 197, 94, .12); color: var(--green) } .lg.warn { background: rgba(245, 158, 11, .12); color: var(--amber) } .lg.bad { background: rgba(239, 68, 68, .12); color: var(--red) }
+.lg.quiet { color: var(--dim) } .ok, b.ok { color: var(--green) } .warn { color: var(--amber) } .bad { color: var(--red) }
+.pill.dec, .sr .k.tk, .attsum .who.me { color: var(--text) }
+
+/* inputs */
+textarea, input[type="text"], input[type="search"], input:not([type]), select { background: #0f1226; color: var(--text); border: 1px solid var(--line2); border-radius: 12px; font-family: var(--sans) }
+textarea:focus, input:focus, select:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(139, 92, 246, .18) }
+.cv-compose textarea, #cv-in { background: #0f1226; border: 1px solid var(--line2); border-radius: 12px; font: 13.5px/1.55 var(--sans); padding: 12px 14px }
+.cv-log { background: var(--bg2); border-radius: 14px } .cv-u { background: var(--panel2); border-radius: 14px }
+.cv-empty img { display: none } .cv-empty .muted { font-family: var(--sans); font-size: 15px; color: var(--dim); font-style: italic }
+.cv-screen { border-left: 2px solid var(--violet); background: rgba(139, 92, 246, .06); color: var(--muted) }
+.cv-drafts { border-color: var(--line2); background: #0f1226; border-radius: 12px }
+
+/* rows */
+.att, .tk-row, .tks-row, .dc-row, .agent, .sr { border-color: var(--line) }
+.att:hover, .tk-row:hover, .sr:hover { background: var(--panel2) }
+.att b { font-weight: 500 }
+
+/* pages */
+.page, .arpage { font-family: var(--sans) }
+.fd, .tk-full, .tkf, .tks, .bl { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: none; padding: 16px 20px }
+.tkf-pre, pre.fbody { background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; font-family: var(--mono); font-size: 11.5px }
+.rm td, .rm th { font-family: var(--mono) }
+.arpage-dock-hd { flex-wrap: wrap } .arpage-dock-hd b { font: 600 18px var(--sans); text-transform: none; letter-spacing: -.01em; color: var(--text) }
+.cv-cursor img { filter: none }
+/* Home's background: his lake-window picture behind the whole page, the desk see-through so it shows */
+html.home-bg { min-height: 100%; background: linear-gradient(rgba(8,10,24,.18), rgba(8,10,24,.35)), var(--home-bg, url(/img/home/bg/autumn-afternoon.png)) center 35% / cover no-repeat fixed, var(--bg) } html.home-bg body { background: transparent; min-height: 100vh }
+html.home-bg .env-desk, html.home-bg .env-side { background: transparent; box-shadow: none } html.home-bg .env-desk::after { display: none }
+/* BARE CARDS: the greeting and the date/time/weather sit on the picture with no panel; the card's
+   buttons show on hover so they can still be moved, sized and closed */
+.card.card-bare { background: transparent; border-color: transparent; box-shadow: none; padding: 6px 10px; overflow: visible }
+.card.card-bare .ch { position: absolute; top: -14px; right: 6px; z-index: 3; margin: 0; padding: 2px 8px; border: 0; border-radius: 8px; background: rgba(8,10,24,.7); opacity: 0; transition: opacity .15s }
+.card.card-bare:hover .ch, .card.card-bare.lifted .ch { opacity: 1 } .card.card-bare .ch h3 { font-size: 11px }
+.card.card-bare .cb { padding: 0; overflow: visible }
+.hh h1 { margin: 0 0 4px; font: 400 34px/1.15 "Segoe Script", "Brush Script MT", cursive; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.7) }
+.hh .hg-quote { font-size: 15px; color: rgba(255,255,255,.9); text-shadow: 0 1px 8px rgba(0,0,0,.8) }
+.hc { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.75) }
+.hc .hg-date { font-size: 15px; margin: 0 } .hc-time { font: 600 30px/1.1 var(--sans); letter-spacing: -.01em }
+.hc .hg-side { text-align: right } .hc .hg-wx b { font-size: 24px } .hc .hg-wx .dim, .hc .hg-place { color: rgba(255,255,255,.85) }
+.card.card-bare .rz, .card.card-bare .rzh, .card.card-bare .arr { opacity: 0 } .card.card-bare:hover .rz, .card.card-bare:hover .rzh, .card.card-bare:hover .arr { opacity: 1 }
+/* the top bar above the whole desk (its project drop-down was hidden behind other windows) - it was layer 20 while cards and open drawers reach 700, so its menus slid under them; 960 is
+   above drawers (700), the dim (800) and a lifted card (900), below the card menu's own 950+ popups only where they open */
+.top { z-index: 960 }
+/* a trusted project's boxed cards (boxcards.js): the sealed frame fills the card, see-through */
+.cb.boxcard-body { padding: 0; overflow: hidden; height: 100%; position: relative }
+.boxcard-frame { display: block; width: 100%; height: 100%; min-height: 80px; border: 0; background: transparent; color-scheme: dark }
+/* a dialog (Open a folder as a project, and the others using .dlg) above EVERYTHING on the desk (it was layer 50, under an open drawer's 700) */
+.dlg { z-index: 980 }
+/* project lists are real links now (open in a new tab: Ctrl/middle click, or the ↗) - they keep their old look */
+.swmenu .swi { grid-template-columns: 1fr auto auto; color: inherit; text-decoration: none } .swmenu .swi small { grid-column: 1 / -1 }
+a.hp-row { color: inherit; text-decoration: none }
+.swnew, .hp-new { opacity: 0; color: var(--muted); font-size: 13px; padding: 0 4px; border-radius: 6px; transition: opacity .12s }
+.swmenu .swi:hover .swnew, a.hp-row:hover .hp-new { opacity: 1 } .swnew:hover, .hp-new:hover { color: var(--text); background: var(--panel2) }

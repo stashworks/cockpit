@@ -1,0 +1,430 @@
+/* Engine-only styles: the project switcher, the welcome, the open-folder dialog.
+   app.css owns the palette, the cards and the grid. */
+/* The hidden attribute must win over any display rule below, or a dialog with display:grid
+   shows regardless (it did, 2026-09-16: the open-folder overlay sat on the page with an
+   empty list because the listing only loads when the dialog is opened on purpose). */
+[hidden] { display: none !important }
+.switcher { position: relative }
+.swbtn { display: grid; grid-template-columns: auto auto; column-gap: 8px; align-items: center; text-align: left; background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 3px 8px; color: var(--text); cursor: pointer }
+.swbtn:hover { border-color: var(--line2); background: var(--panel2) }
+.swbtn b { font-size: 14px } .swbtn small { grid-column: 1; display: block; color: var(--muted); font-size: 11px; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.swbtn .caret { grid-column: 2; grid-row: 1 / span 2; color: var(--muted) }
+.swmenu { position: absolute; top: 100%; left: 0; margin-top: 6px; min-width: 340px; background: var(--panel); border: 1px solid var(--line2); border-radius: 10px; box-shadow: 0 18px 40px rgba(0,0,0,.55); z-index: 40; padding: 6px }
+.swmenu .swi { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 7px 10px; border-radius: 7px; cursor: pointer }
+.swmenu .swi:hover { background: var(--panel2) }
+.swmenu .swi.on { box-shadow: inset 0 0 0 1px var(--line2) }
+.swmenu .swi b { font-size: 13px } .swmenu .swi small { grid-column: 1; color: var(--dim); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.swmenu .swi .st { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 11px; color: var(--muted) }
+.swmenu .swi .st.live { color: var(--green, #46c07a) }
+.swmenu .swi .st.gone { color: var(--red, #e5484d) }
+.swmenu .swsep { border-top: 1px solid var(--line); margin: 6px 4px }
+.swmenu .swact { padding: 7px 10px; color: var(--muted); cursor: pointer; border-radius: 7px } .swmenu .swact:hover { background: var(--panel2); color: var(--text) }
+
+.welcome { max-width: 560px; margin: 80px auto; text-align: center; color: var(--muted) }
+.welcome h2 { color: var(--text); margin-bottom: 8px } .welcome p { margin: 10px 0 } .welcome code { color: var(--text) }
+
+.dlg { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: grid; place-items: center; z-index: 50 }
+.dlgbox { width: 640px; max-width: 94vw; background: var(--panel); border: 1px solid var(--line2); border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.6); display: flex; flex-direction: column; max-height: 80vh }
+.dlghd { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line) }
+.dlgx { cursor: pointer; color: var(--muted) } .dlgx:hover { color: var(--text) }
+.dlgpath { display: flex; gap: 8px; padding: 10px 14px }
+.dlgpath input { flex: 1; background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 6px 10px; font-family: ui-monospace, Consolas, monospace; font-size: 12px }
+.dlglist { overflow: auto; padding: 0 8px; flex: 1; min-height: 200px }
+.dlglist .fe { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 7px; cursor: pointer; font-size: 13px }
+.dlglist .fe:hover { background: var(--panel2) }
+.dlglist .fe .ck { font-size: 11px; color: var(--green, #46c07a) }
+.dlglist .fe.up { color: var(--muted) }
+.dlglist .err { padding: 12px; color: var(--red, #e5484d) }
+.dlgft { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line) }
+
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 12px }
+.kv b { color: var(--muted); font-weight: 500 }
+.kv code { font-family: ui-monospace, Consolas, monospace; font-size: 11px }
+
+/* Files card - the tree */
+.ftree { font-size: 12px; font-family: ui-monospace, Consolas, monospace; overflow: auto }
+.ftree .fr { display: flex; align-items: center; gap: 4px; padding: 2px 6px 2px 8px; border-radius: 5px; white-space: nowrap; overflow: hidden }
+.ftree .fr.dir { cursor: pointer } .ftree .fr.dir:hover { background: var(--panel2) }
+.ftree .fr.dim .fn { color: var(--dim) }
+.ftree .tw { width: 12px; color: var(--muted); flex: 0 0 12px }
+.ftree .fn { overflow: hidden; text-overflow: ellipsis }
+.ftree .fs { margin-left: auto; color: var(--dim); font-size: 10px; padding-left: 8px }
+
+/* File card - the viewer */
+.fhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px; font-size: 12px }
+.fhead code { font-family: ui-monospace, Consolas, monospace; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.fbody { margin: 0; font-family: ui-monospace, Consolas, monospace; font-size: 12px; line-height: 1.5; overflow: auto; flex: 1; background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; tab-size: 4; white-space: pre }
+.fbody .ln { display: inline-block; width: 3.5em; color: var(--dim); text-align: right; padding-right: 1em; user-select: none }
+
+/* Conversation card */
+.cv { display: flex; flex-direction: column; height: 100%; min-height: 0; gap: 8px }
+.cv-top { display: flex; align-items: center; gap: 10px; flex: 0 0 auto }
+.cv select, .cv-bar select { background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 7px; padding: 4px 8px; font-size: 12px; max-width: 320px }
+/* reads like the web chat: one centred reading column, your messages in a bubble, replies as plain open text */
+/* overscroll-behavior: reaching either end of the conversation (or the typing box) stops there - it does not carry on and
+   scroll the page under it */
+.cv-log { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 22px; padding: 12px max(12px, calc((100% - 780px) / 2)) }
+.cv-empty { margin: auto; max-width: 420px; text-align: center }
+.cv-turn { border-radius: 14px; padding: 10px 14px; max-width: 100% }
+.cv-turn.user { align-self: flex-end; max-width: 85%; background: #1b2a4a; border: 1px solid #27406b }
+.cv-turn.assistant { align-self: stretch; padding: 0 2px; background: none; border: 0 }
+.cv-who { font-size: 11px; color: var(--muted); margin-bottom: 6px }
+.cv-turn.user .cv-who { display: none }
+.cv-cost { opacity: 0; transition: opacity .15s }
+.cv-turn:hover .cv-cost { opacity: 1 }
+.cv-text { font-size: 15px; line-height: 1.6; overflow-wrap: anywhere }
+.cv-text.plain { white-space: pre-wrap }
+.cv-text p { margin: 0 0 .8em } .cv-text > :last-child { margin-bottom: 0 }
+.cv-text ul, .cv-text ol { margin: 0 0 .8em; padding-left: 1.4em } .cv-text li { margin: .2em 0 } .cv-text li.md-sub { margin-left: 1.3em }
+.cv-text .md-h { font-weight: 600; margin: 1em 0 .4em } .cv-text .md-h1 { font-size: 1.25em } .cv-text .md-h2 { font-size: 1.15em } .cv-text .md-h3, .cv-text .md-h4 { font-size: 1.05em }
+.cv-text > .md-h:first-child { margin-top: 0 }
+.cv-text code { font: 13px/1.4 ui-monospace, Consolas, monospace; background: var(--panel2); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px }
+.cv-text pre { margin: 0 0 .8em; padding: 10px 12px; font-size: 13px; line-height: 1.45; background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; overflow: auto }
+.cv-text pre code { border: 0; padding: 0; background: none; white-space: pre }
+.cv-text .md-tw { overflow-x: auto; margin: 0 0 .8em }
+.cv-text table { border-collapse: collapse; font-size: 14px } .cv-text th, .cv-text td { border: 1px solid var(--line); padding: 4px 10px; text-align: left; vertical-align: top } .cv-text th { background: var(--panel2); font-weight: 600 }
+.cv-text blockquote { margin: 0 0 .8em; padding-left: 12px; border-left: 3px solid var(--line2); color: var(--muted) }
+.cv-text hr { border: 0; border-top: 1px solid var(--line); margin: 1em 0 }
+.cv-text a { color: var(--accent, #6aa6ff) }
+/* the working cursor: the owner's helmet turning like a coin, on its own line, three dots waving beside it
+   (chosen from the gallery on 2026-09-18) */
+.cv-cursor { display: flex; align-items: center; gap: 8px; margin-top: 6px; height: 30px }
+.cur-wrap { position: relative; display: inline-block; height: 26px }
+.cv-cursor img { height: 26px; width: auto; animation: helmet-flip 1.8s ease-in-out infinite; filter: drop-shadow(0 0 4px rgba(80,160,255,.5)) }
+@keyframes helmet-flip { from { transform: perspective(80px) rotateY(0deg) } to { transform: perspective(80px) rotateY(360deg) } }
+.cv-cursor-dots i { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); margin-right: 4px; animation: dot-wave 1.2s ease-in-out infinite }
+.cv-cursor-dots i:nth-child(2) { animation-delay: .15s } .cv-cursor-dots i:nth-child(3) { animation-delay: .3s }
+@keyframes dot-wave { 0%, 60%, 100% { transform: translateY(0); opacity: .45 } 30% { transform: translateY(-4px); opacity: 1 } }
+.cv-tool { font-size: 11px; color: var(--muted); font-family: ui-monospace, Consolas, monospace; padding: 1px 0 } .cv-tool b { color: var(--text); font-weight: 500 } .cv-tool.err { color: var(--red, #e5484d) }
+.cv-notes { font-size: 12px; background: var(--bg2); border: 1px dashed var(--line2); border-radius: 8px; padding: 6px 10px } .cv-notes b { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px }
+.cv-end { padding: 0 4px }
+.cv-compose { flex: 0 0 auto; display: flex; flex-direction: column; gap: 6px }
+.cv-compose textarea { width: 100%; box-sizing: border-box; min-height: 64px; max-height: 40vh; overflow-y: auto; overscroll-behavior: contain; resize: none; background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 13px }
+.cv-compose textarea:disabled { opacity: .5 }
+.cv-bar { display: flex; align-items: center; gap: 8px }
+
+/* Plugins card */
+.pl { display: flex; flex-direction: column; gap: 8px }
+.pli { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px } .pli.on { border-color: #27406b }
+.pli-hd { display: flex; align-items: center; gap: 8px } .pl-on { font-size: 10px; color: var(--green, #46c07a); text-transform: uppercase; letter-spacing: .08em }
+.pli-bar { display: flex; gap: 8px; align-items: center; margin-top: 8px }
+.plw { display: flex; flex-direction: column; gap: 8px; margin-top: 8px }
+.pq { display: flex; flex-direction: column; gap: 3px; font-size: 12px } .pq-l { color: var(--muted) }
+.pq input[type=text], .pq select { background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 7px; padding: 5px 8px; font-size: 12px }
+.plw-bar { display: flex; gap: 8px }
+
+/* Architecture card */
+.ar { display: flex; flex-direction: column; height: 100%; min-height: 0; gap: 6px }
+.ar-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap }
+.ar-lenses { display: flex; gap: 4px; flex-wrap: wrap }
+.lensbtn { background: var(--panel2); color: var(--muted); border: 1px solid var(--line2); border-radius: 7px; padding: 4px 10px; font-size: 12px; cursor: pointer } .lensbtn.on { color: var(--text); border-color: var(--blue, #4f8cff) }
+.ar-crumbs { font-size: 12px } .ar-crumbs a { color: var(--muted) }
+.ar-purpose { min-height: 14px }
+.ar-body { flex: 1; min-height: 0; display: flex; gap: 12px }
+.ar-map { flex: 1; min-width: 0; overflow: auto; display: flex; flex-direction: column }
+.ar-map .mapsvg { width: 100%; height: auto; max-height: 100%; flex: 1 }
+.ar-rail { flex: 0 0 260px; overflow: auto; border-left: 1px solid var(--line); padding-left: 12px; font-size: 12px }
+.ar-hd { margin-bottom: 6px } .ar-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px }
+.ar-sec { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin: 8px 0 3px }
+.ar-e a { color: var(--text) }
+.ar-empty { margin: auto; text-align: center; padding: 30px }
+.mapsvg .an { cursor: pointer } .mapsvg .an.leaf { cursor: pointer } .mapsvg .an text { fill: var(--muted); font-size: 12px; pointer-events: none }
+.mapsvg .an:hover circle { stroke-width: 3 } .mapsvg .an.sel circle { stroke-width: 3.5; filter: drop-shadow(0 0 4px #fff4) }
+.ar .maplegend { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 2px 0 }
+.ar .lg { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 6px }
+.ar .lg::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--sw, #3a4456) }
+.ar .lg.bad::before { background: #f0615a } .ar .lg.warn::before { background: #e0a63a } .ar .lg.ok::before { background: #38c172 } .ar .maplegend .lg::before { height: 9px; width: 9px; margin: 0; border-radius: 50% }
+.ar .lg b { color: var(--text); font-weight: 600 }
+
+/* Plugins page */
+.plpage { max-width: none; margin: 0 } .plh { font-size: 18px; margin: 6px 0 4px } .plpage .pli { padding: 12px 14px }
+.pli-row { display: flex; justify-content: space-between; align-items: center; gap: 16px }
+.sw { position: relative; display: inline-block; width: 40px; height: 22px; flex: 0 0 40px; cursor: pointer }
+.sw input { opacity: 0; width: 0; height: 0 }
+.sw .swk { position: absolute; inset: 0; background: var(--line2); border-radius: 22px; transition: background .2s }
+.sw .swk::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: var(--text); border-radius: 50%; transition: transform .2s }
+.sw input:checked + .swk { background: var(--green, #46c07a) } .sw input:checked + .swk::before { transform: translateX(18px) }
+/* per-card switches under a plugin on the Plugins page: small, in a row */
+.pl-cards { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0 2px }
+.pl-card { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; position: relative; color: var(--muted) }
+.pl-card input { opacity: 0; width: 0; height: 0; position: absolute }
+.pl-card .swk { position: relative; display: inline-block; width: 28px; height: 16px; background: var(--line2); border-radius: 16px; flex: 0 0 28px; transition: background .2s }
+.pl-card .swk::before { content: ''; position: absolute; width: 12px; height: 12px; left: 2px; top: 2px; background: var(--text); border-radius: 50%; transition: transform .2s }
+.pl-card input:checked + .swk { background: var(--green, #46c07a) } .pl-card input:checked + .swk::before { transform: translateX(12px) } .pl-card input:checked ~ * { color: var(--text) }
+.ar-setup { max-width: 520px }
+.aipick { display: inline-flex; align-items: center; gap: 6px; margin-right: 10px }
+.aipick select { background: var(--panel2); color: var(--text); border: 1px solid var(--line2); border-radius: 7px; padding: 4px 8px; font-size: 12px; color-scheme: dark }
+/* the open list is drawn by the browser, white unless told otherwise */
+.aipick option, .aipick optgroup { background: var(--panel2); color: var(--text) }
+.aipick option:disabled { color: var(--dim) }
+.ar-crumbs a { color: var(--text); text-decoration: underline; text-decoration-color: var(--line2) } .ar-crumbs a:hover { text-decoration-color: var(--text) }
+.ar-up { padding: 2px 8px; margin-right: 6px }
+.ar-rail { position: relative } .ar-close { position: absolute; top: 0; right: 4px; cursor: pointer; opacity: .5 } .ar-close:hover { opacity: 1 }
+
+/* Architecture: the Flow view */
+.ar-sep { display: inline-block; width: 1px; height: 18px; background: var(--line2); margin: 0 6px; vertical-align: middle }
+.ar-map .flowsvg { width: 100%; height: auto; max-height: none; flex: 0 0 auto }   /* the flow takes the full width and scrolls; the ring rule above shrank it to a strip */
+.flowsvg .fl-head { fill: var(--text); font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase }
+.flowsvg { contain: paint } .flowsvg .fn { cursor: pointer } .flowsvg .fn text { fill: var(--text); font-size: 12px; font-family: ui-monospace, Consolas, monospace; pointer-events: none }
+.flowsvg .fn text.dim, .flowsvg .dim { fill: var(--dim) }
+.flowsvg .fe { fill: none; stroke-width: 1.2; opacity: .35; pointer-events: none }   /* edges are drawing, not targets: hit-testing thousands of curves on every mouse move re-rasterised the map and it flashed black */
+.flowsvg .fe.lit { opacity: 1; stroke-width: 2.2 } .flowsvg .fe.dim2 { opacity: .06 }
+.flowsvg .fn.dim2 { opacity: .25 } .flowsvg .fn.lit rect { stroke-width: 2 }
+.fl-legend { margin-top: 4px }
+.ar .lg.pick { cursor: pointer } .ar .lg.pick:hover { border-color: var(--text) } .ar .lg.on { border-color: var(--text); color: var(--text); box-shadow: inset 0 0 0 1px var(--text) }
+.flowsvg .fe.off { opacity: .03 }
+.mapsvg .an.dim2 { opacity: .2 } .mapsvg .an.lit circle { stroke-width: 3 }
+.aipick.blocked select { border-color: var(--red, #e5484d) } .aipick.blocked::after { content: ' busy'; color: var(--red, #e5484d); font-size: 11px }
+
+/* Fleet card */
+.fl { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0 }
+.fl-agents { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch }
+.fl-agent { flex: 1 1 180px; border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px }
+.fl-agent.working { border-color: var(--green, #46c07a) } .fl-agent.paused { border-color: #e0a63a } .fl-agent.off { opacity: .6 }
+.fl-ah { display: flex; align-items: center; gap: 6px } .fl-st { margin-left: auto; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted) }
+.fl-st.working { color: var(--green, #46c07a) } .fl-st.paused { color: #e0a63a }
+.fl-ab { display: flex; align-items: center; gap: 8px; margin-top: 2px }
+.sw.sm { width: 32px; height: 18px; flex-basis: 32px } .sw.sm .swk::before { width: 12px; height: 12px } .sw.sm input:checked + .swk::before { transform: translateX(14px) }
+.fl-all { flex: 1 1 160px; display: flex; flex-direction: column; gap: 4px; justify-content: center }
+.fl-qh { display: flex; align-items: center; gap: 10px; flex: 0 0 auto } .fl-qh select { background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 6px; font-size: 12px }
+.fl-addf { display: flex; flex-direction: column; gap: 6px; border: 1px dashed var(--line2); border-radius: 8px; padding: 8px }
+.fl-addf input, .fl-addf textarea, .fl-addf select { background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 7px; padding: 5px 8px; font: inherit; font-size: 12px }
+.fl-addf textarea { min-height: 56px; resize: vertical } .fl-addb { display: flex; gap: 8px; align-items: center }
+.fl-q { flex: 1; min-height: 0; overflow: auto }
+.fl-tier { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 8px 0 3px }
+.fl-item { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px; font-size: 12px } .fl-item:hover { background: var(--panel2) }
+.fl-item.running { border-left: 2px solid var(--green, #46c07a) } .fl-item.parked, .fl-item.done { opacity: .55 } .fl-item.failed { border-left: 2px solid var(--red, #e5484d) }
+.fl-mv a { color: var(--dim); font-size: 9px; margin-right: 2px } .fl-mv a:hover { color: var(--text) }
+.fl-proj { display: none }
+.fl-title { flex: 1 1 100%; order: -1; white-space: normal; line-height: 1.35 }   /* the title on its own line - in a narrow column the one-line row left it no room (2026-09-19) */
+.fl-item { flex-wrap: wrap; row-gap: 2px } .fl-item .fl-status { flex: 1 }
+.fl-status { color: var(--dim); font-size: 11px; white-space: nowrap }
+.fl-item select.fl-pri { background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 6px; font-size: 11px }
+.fl-out { padding: 0 6px 6px 120px } .fl-otext { color: var(--muted); white-space: pre-wrap; margin-top: 2px }
+
+/* Agent fleet card - the owner's shape */
+.fa { display: flex; flex-direction: column; gap: 6px }
+.fa-agent { padding: 6px 0 8px; border-bottom: 1px solid var(--line) }
+.fa-row { display: flex; align-items: center; gap: 8px }
+.fa-av { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; background: #3a4a6a; flex: 0 0 26px }
+.fa-av.claude-code { background: #3f6f4f } .fa-av.codex-cli { background: #2b4fa8 } .fa-av.pi { background: #2f7a5a }
+.fa-name { font-size: 15px; flex: 1 }
+.fa-pause { padding: 2px 8px; font-size: 11px }
+/* usage left, next to the agent: a pill with the plan's reading as a fill bar */
+.fa-use { position: relative; overflow: hidden; font-size: 11px; padding: 1px 7px; border-radius: 9px; border: 1px solid var(--line); cursor: pointer; white-space: nowrap; line-height: 16px }
+.fa-use i { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(70,192,122,.22); z-index: 0 } .fa-use.low i { background: rgba(224,166,58,.28) } .fa-use.crit i { background: rgba(224,80,80,.32) }
+.fa-use b, .fa-use span { position: relative; z-index: 1 } .fa-use.stale b { color: var(--muted) } .fa-use.stale::after { content: ' ⌛'; position: relative; z-index: 1; font-size: 10px }
+.fa-use.none { color: var(--muted); border-style: dashed } .fa-use.free { color: var(--muted); cursor: default }
+/* the usage popup: floats under the agent's line, closes on any click elsewhere */
+.fa-agent { position: relative }
+.fa-pop { position: absolute; left: 34px; top: 30px; z-index: 30; min-width: 260px; max-width: 340px; background: var(--panel); border: 1px solid var(--line2); border-radius: 10px; box-shadow: 0 14px 34px rgba(0,0,0,.5); padding: 8px 10px; font-size: 12px }
+.fa-pop-hd { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px }
+.fa-pop-w { display: grid; grid-template-columns: 78px 1fr auto; gap: 2px 8px; align-items: center; padding: 3px 0 } .fa-pop-w .small { grid-column: 2 / span 2 }
+.fa-pop-n { color: var(--muted); text-transform: capitalize }
+.fa-pop-bar { height: 6px; border-radius: 3px; background: var(--bg2); border: 1px solid var(--line); overflow: hidden } .fa-pop-bar i { display: block; height: 100%; background: rgba(70,192,122,.7) } .fa-pop-bar.low i { background: #e0a63a } .fa-pop-bar.crit i { background: #e05050 }
+.fa-pop-ft { display: flex; gap: 8px; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line) }
+.fa-st { font-size: 10px; letter-spacing: .1em; color: var(--dim) } .fa-st.working { color: var(--green, #46c07a) } .fa-st.paused { color: #e0a63a } .fa-st.idle { color: var(--muted) }
+.fa-why { margin: 2px 0 4px 34px }
+.fa-now { margin-left: 24px; cursor: pointer; font-size: 13px } .fa-now .car { display: inline-block; width: 12px; color: var(--muted) }
+.fa-proj { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--muted) }
+.fa-q { margin: 4px 0 0 36px; padding-left: 16px; font-size: 12px; color: var(--muted) } .fa-q li { margin: 2px 0 }
+.fa-all { display: flex; justify-content: flex-end; padding: 2px 0 }
+.fa-qh { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 0; border-top: 1px solid var(--line); margin-top: 4px } .fa-qh .car { width: 12px; color: var(--muted) }
+.fa-qbar { display: flex; align-items: center; gap: 10px; margin: 4px 0 } .fa-qbar select { background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 7px; padding: 3px 6px; font-size: 12px }
+
+/* Lane performance */
+.pf-bar { display: flex; gap: 4px; align-items: center; margin-bottom: 8px }
+.pf-t { width: 100%; border-collapse: collapse; font-size: 12px } .pf-t th { text-align: left; color: var(--muted); font-weight: 500; font-size: 11px; padding: 3px 6px; border-bottom: 1px solid var(--line) } .pf-t td { padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top }
+
+/* a plugin page: full height under the header, its own layout inside */
+.page { height: calc(100vh - 92px); min-height: 400px; display: flex; flex-direction: column }
+
+/* the Architecture page: map left, the conversation right; a chip follows a dragged node */
+.arpage { display: flex; gap: 14px; flex: 1; min-height: 0 }
+.arpage-map { flex: 1 1 0 }
+.arpage-dock { flex: 0 0 400px }
+.arpage-map { min-width: 0; overflow: auto; padding-right: 4px }
+.arpage-dock { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--panel); transition: border-color .15s, box-shadow .15s }
+.arpage-dock.drop-here { border-color: var(--green, #46c07a); box-shadow: 0 0 0 3px rgba(70,192,122,.2) }
+.arpage-dock-hd { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px }
+.arpage-conv { flex: 1; min-height: 0; display: flex; flex-direction: column }
+.arpage-conv .cv { height: 100% }
+/* the dragged width wins over the content: a flex
+   item never shrinks below its widest line unless told to, so a long header row or reply held the dock open whatever the sizer set */
+.arpage-dock { min-width: 0; overflow: hidden; overflow-wrap: anywhere }
+.arpage-conv, .arpage-conv .cv, .arpage-conv .cv-log { min-width: 0 }
+.arpage-conv .cv-top { flex-wrap: wrap }
+.ar-chip { position: fixed; z-index: 60; pointer-events: none; font-size: 12px; padding: 3px 9px; border-radius: 9px; background: var(--panel); border: 1px solid var(--line2); box-shadow: 0 8px 20px rgba(0,0,0,.4); color: var(--text) }
+.arpage .an, .arpage .fn { cursor: grab }
+
+/* the page's map zooms: the svg takes the zoom as its width and the pane scrolls both ways */
+.arpage-map .mapsvg { max-height: none; flex: none; display: block }
+.arpage-map { overflow: auto }
+
+/* the page's rail: connections, scrolling on its own */
+.arpage .ar-rail { max-height: none; overflow: visible }   /* the page has room: the connections open in full, no scrollbar */
+
+/* the code pane: between the flow and the connections box, resized from its left edge */
+.ar-code { flex: 0 0 auto; width: 520px; min-width: 280px; display: flex; min-height: 0; max-height: calc(100vh - 170px); border: 1px solid var(--line); border-radius: 10px; background: var(--panel) }
+.ar-sizer { flex: 0 0 8px; cursor: col-resize; border-radius: 10px 0 0 10px; background: linear-gradient(90deg, transparent 3px, var(--line2) 3px, var(--line2) 5px, transparent 5px) }
+.ar-sizer:hover { background: linear-gradient(90deg, transparent 2px, var(--text) 2px, var(--text) 6px, transparent 6px) }
+.ar-code-in { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 8px 10px 8px 4px }
+.ar-code-in .fbody { flex: 1; min-height: 0; font-size: 11.5px }
+.ar-code-in .fhead .tkx { margin-left: auto; cursor: pointer; opacity: .6 } .ar-code-in .fhead .tkx:hover { opacity: 1 }
+.arpage .ar-body { align-items: flex-start }
+.pipe .hd .ghp-st.on { color: var(--text); text-decoration: underline }
+
+/* the conversation dock's width is the owner's: a sizer on its left edge */
+.arpage-dock { position: relative }
+.arpage-dock-sizer { position: absolute; left: -7px; top: 0; bottom: 0; width: 12px; cursor: col-resize; z-index: 3 }
+.arpage-dock-sizer:hover, .arpage-dock-sizer:active { background: linear-gradient(90deg, transparent 4px, var(--line2) 4px, var(--line2) 7px, transparent 7px) }
+
+
+/* drafts waiting for the owner, above the message box */
+.cv-drafts { border: 1px solid var(--line2); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px }
+.cv-drafts > b { font-size: 12px; color: var(--muted) }
+.cv-draft { display: flex; align-items: center; gap: 8px; min-width: 0 }
+.cv-draft-id { font-family: var(--mono); font-size: 12px; flex: 0 0 auto }
+.cv-draft-t { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.cv-draft .btn { padding: 3px 10px; font-size: 12px }
+.cv-draft-more { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: 12px; white-space: nowrap } .cv-draft-more:hover { color: var(--text) }
+
+/* the Settings page: sections as cards, each with a title and a plain sentence saying what it is */
+.st-page { max-width: none; margin: 0; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 26px; align-items: start; padding: 0 8px }
+.st-nav { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 2px }
+.st-nav a { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 10px; color: var(--muted); text-decoration: none; font-size: 14px }
+.st-nav a:hover { color: var(--text); background: var(--panel) } .st-nav a.on { background: rgba(139, 92, 246, .14); color: #fff; box-shadow: inset 0 0 0 1px rgba(139, 92, 246, .35) }
+.st-main { min-width: 0 } .st-main .st-sec { max-width: 1100px } .st-main .st-sec.wide, .st-main #st-ai, .st-main #st-plugins { max-width: none }
+.st-title { display: flex; align-items: center; gap: 14px; margin: 0 0 6px } .st-title h2 { margin: 0 }
+.st-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start } @media (max-width: 1100px) { .st-two { grid-template-columns: 1fr } }
+.st-tools .st-item { padding: 10px 12px } .st-toolform { background: var(--bg2); border: 1px solid var(--line2); border-radius: 12px; padding: 12px 14px; margin: 6px 0 }
+@media (max-width: 900px) { .st-page { grid-template-columns: 1fr } .st-nav { position: static; flex-direction: row; flex-wrap: wrap } }
+.st-sec { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px 24px 22px }
+.st-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 14px }
+.st-hd h2 { font: 600 18px/1.2 var(--sans); margin: 0 0 6px; letter-spacing: -.01em }
+.st-what { font-size: 13px; color: var(--muted); line-height: 1.55; max-width: 640px }
+.st-aside { flex: 0 0 auto; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px }
+.st-list { display: flex; flex-direction: column; gap: 10px }
+.st-item { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--bg2) } .st-item.on { border-color: var(--line2) }
+.st-item-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 4px } .st-grow { flex: 1 }
+.st-lab { display: block; font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px }
+.st-kv { display: flex; flex-direction: column; gap: 6px; font-size: 13px } .st-kv .st-lab { margin: 0 0 2px }
+.st-log { font: 11.5px var(--mono); color: var(--dim); white-space: pre-wrap; margin: 10px 0 0; max-height: 120px; overflow: auto }
+.st-models { margin-top: 6px } .st-mrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.st-link { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; font-size: 12px; cursor: pointer } .st-link:hover { color: var(--text) }
+.st-mform { display: flex; flex-direction: column; gap: 6px } .st-mrow2 { display: flex; gap: 6px; align-items: center }
+.st-mrow2 input { flex: 1; min-width: 0 } .st-mrow2 input[name=ctx] { flex: 0 0 96px } .st-mrow2 .st-x { flex: 0 0 20px } .st-mhead { font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) } .st-mhead span { flex: 1 } .st-mhead span:nth-child(3) { flex: 0 0 96px } .st-mhead span:last-child { flex: 0 0 20px } .st-x { color: var(--dim); cursor: pointer; padding: 0 6px; font-size: 16px } .st-x:hover { color: var(--red) }
+.st-sec .plw { margin-top: 0; max-width: 640px } .st-sec .pq input[type=text], .st-sec .pq select { font-size: 13px; padding: 7px 10px }
+.st-sec code { font-family: var(--mono); font-size: 12px; color: var(--text) }
+
+/* the Tickets board: one column per state, chips, the hot column is the one waiting on the owner */
+/* The board scrolls inside itself, both ways, and is never taller than most of the screen. With 180 in To work it was 20,000 px tall, so the sideways scrollbar it always had
+   sat off the bottom of the page. Column names stay pinned while the chips scroll under them. */
+.tkb { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: 12px; overflow: auto; max-height: 75vh; align-items: start; padding-bottom: 6px }
+.tkb-col .tkb-hd { position: sticky; top: -8px; z-index: 1; background: var(--bg2); margin: -8px -8px 0; padding: 8px 12px 6px; border-radius: 12px 12px 0 0 }
+.tkb-row { display: flex; gap: 4px; align-items: stretch } .tkb-row .tkb-chip { flex: 1; min-width: 0 }
+.tkb-mv { display: flex; flex-direction: column; justify-content: center; font-size: 10px; line-height: 1.3 } .tkb-mv a { color: var(--dim); text-decoration: none } .tkb-mv a:hover { color: var(--text) }
+.tkb-col { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 8px; min-height: 90px; display: flex; flex-direction: column; gap: 6px }
+.tkb-col.hot { border-color: var(--violet) }
+/* Each column header carries a tooltip saying what the column means and who it waits on
+  . The help cursor is what tells you there is one to read. */
+.tkb-hd { font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 2px 4px 4px; cursor: help }
+.tkb-hd:hover { color: var(--text) }
+.tkb-chip { display: block; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; color: var(--text); text-decoration: none; font-size: 12.5px; line-height: 1.4; cursor: pointer }
+.tkb-chip:hover { border-color: var(--line2) } .tkb-chip.on { border-color: var(--violet) } .tkb-chip.gh { opacity: .8 }
+.tkb-chip b { font-family: var(--mono); font-size: 11px } .tkb-chip .tkb-t { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
+.tkb-empty { color: var(--dim); text-align: center; padding: 10px 0 }
+.tk-full { margin-top: 12px }
+
+.st-steps { margin: 0 0 16px; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; line-height: 1.55 } .st-steps li::marker { color: var(--violet); font-weight: 600 }
+.st-cmds { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 } .st-cmds > div { display: flex; gap: 12px; align-items: baseline } .st-cmd-n { flex: 0 0 110px; color: var(--muted); font-size: 12.5px } .st-cmds code { font: 12.5px var(--mono); background: var(--bg2); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px }
+
+.st-presets { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px } .st-preset { border: 1px solid var(--line2); border-radius: 10px; padding: 10px 12px; cursor: pointer; background: var(--panel) } .st-preset:hover { border-color: var(--violet) } .st-preset b { display: block; margin-bottom: 2px }
+.st-toolform .pq-l .dim { font-weight: 400 } .st-toolform .pq-l code { font-size: 11.5px }
+
+.st-toolform.plw { max-width: none; width: auto }
+
+.st-two-pc > div + div { border-left: 1px solid var(--line2); padding-left: 24px } .st-two-pc { gap: 0 } .st-two-pc > div:first-child { padding-right: 24px } .st-h3 { font: 600 15px/1.2 var(--sans); margin: 0 0 6px } .st-two-pc .st-what { margin-bottom: 12px } #st-plugins .st-hd { margin-bottom: 4px }
+
+.tk-queue { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--line2); border-radius: 10px; background: var(--bg2) } .tk-queue select { font-size: 12px; padding: 2px 6px; margin-left: 4px } .fa-par { font-size: 11px; padding: 1px 4px; margin-left: 4px }
+
+/* the ticket popup, over the page (fleet card and anywhere a ticket is named outside its board) */
+.tk-modal { position: fixed; inset: 0; z-index: 200; background: rgba(6, 8, 20, .62); display: flex; align-items: center; justify-content: center; padding: 24px }
+.tk-modal-card { width: min(760px, 100%); max-height: 86vh; overflow: auto; background: var(--panel); border: 1px solid var(--line2); border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.6); padding: 14px 18px 16px }
+.tk-modal-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px } .tk-modal-hd .tkx { cursor: pointer; padding: 2px 6px }
+.fl-tk { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--dim) } .fl-tk:hover { color: var(--cyan) }
+
+.tk-qtab { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--line2); border-radius: 10px; background: var(--bg2) }
+.tk-qt { border-collapse: collapse; font-size: 12.5px; width: 100% } .tk-qt th { font: 500 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0 14px 6px 0; cursor: help; border-bottom: 1px solid var(--line); white-space: nowrap } .tk-qt td { padding: 8px 14px 2px 0; vertical-align: middle; white-space: nowrap } .tk-qt .btn { white-space: nowrap } .tk-qt select { font-size: 12px; padding: 2px 6px }
+
+.tk-where { margin: 8px 0 4px; padding: 8px 10px; border-left: 3px solid var(--violet); background: var(--bg2); border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.5 }
+.tk-verdict { font-size: 13px; margin: 2px 0 6px } .tk-checks { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 } .tk-check { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px } .tk-check.bad { padding: 6px 8px; border: 1px solid rgba(239,68,68,.35); border-radius: 8px; background: rgba(239,68,68,.06) } .tk-x { flex: 0 0 14px } .tk-check.bad .tk-x { color: var(--red) } .tk-check.ok .tk-x { color: var(--green) }
+.tk-car { cursor: pointer; color: var(--muted); margin: 4px 0 } .tk-car:hover { color: var(--text) } .tk-car .car { display: inline-block; width: 12px }
+.tk-check.bad .small { color: var(--text) } .tk-check.bad b { color: var(--red) } .tk-verdict { color: var(--text) }
+
+.tk-check.warn { padding: 6px 8px; border: 1px solid rgba(245,158,11,.4); border-radius: 8px; background: rgba(245,158,11,.06) } .tk-check.warn .tk-x { color: var(--amber) } .tk-check.warn b { color: var(--amber) }
+.st-vd { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line) } .st-vd .st-item-hd label.small { display: inline-flex; align-items: center; gap: 4px; margin-right: 6px }
+
+.tk-ask { margin-top: 8px; padding: 10px 12px; border: 1px solid var(--line2); border-radius: 10px; background: var(--bg2) } .tk-ask textarea { width: 100%; box-sizing: border-box; font: 12.5px var(--sans); background: var(--panel); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 6px 8px; resize: vertical }
+
+/* the Tests tab */
+#view-page-tests .arpage-map { overflow: auto; min-width: 0 } .tp { padding: 2px 0 8px } #view-page-tests .ar { padding-top: 6px } .tp-hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 12px } .tp-hd h2 { font: 600 18px/1.2 var(--sans); margin: 0 0 6px } .tp-hd h2 .btn { vertical-align: middle; margin-left: 6px; font-weight: 500 } .dc-hd-acts { display: flex; align-items: center; flex-wrap: wrap; gap: 6px } .dc-hd-acts .dc-acts { margin-left: auto; display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px } .dc-hd-acts .dc-acts .btn { white-space: nowrap }
+.tp-sum { font-size: 13px; margin: 6px 0 12px } .tp-list { display: flex; flex-direction: column; gap: 8px } .tp-row { display: flex; gap: 12px; padding: 10px 12px; border: 1px solid var(--line2); border-radius: 12px; background: var(--panel) } .tp-row.bad { border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.05) } .tp-x { flex: 0 0 16px; font-size: 14px; padding-top: 1px } .tp-row.ok .tp-x { color: var(--green) } .tp-row.bad .tp-x { color: var(--red) } .tp-body { min-width: 0; flex: 1 } .tp-name { font-size: 13.5px } .tp-detail { font-size: 12.5px; margin-top: 2px }
+
+.tp-row.warn { border-color: rgba(245,158,11,.4); background: rgba(245,158,11,.05) } .tp-row.warn .tp-x { color: var(--amber) } .tp-name { display: flex; align-items: center; gap: 8px } .tp-sw { margin-left: auto; white-space: nowrap } .tp-sw label { display: inline-flex; align-items: center; gap: 4px }
+
+/* bubbles are links: the hand, and a lift on hover - everywhere a bubble picks something */
+.lg.pick { cursor: pointer; transition: filter .12s, box-shadow .12s } .lg.pick:hover { filter: brightness(1.3); box-shadow: 0 0 0 1px currentColor } .dc-row:hover { background: var(--bg2) } .dc-row { border-radius: 6px }
+.tp-blk { display: inline-flex; align-items: center; gap: 4px; margin-right: 8px; cursor: pointer } .tp-blk input { margin: 0 } .tp-card:empty { display: none } .tp-card { margin-bottom: 10px }
+/* the Tests tab's next step, on the Environment stage: the words first, the buttons after (2026-09-20) */
+.dc-hd-acts .dc-acts .tp-next { color: var(--accent); font-weight: 600 } .dc-hd-acts .dc-acts .small { white-space: normal }
+.plw-msg:empty { display: none } .pq-req .pq-l { font-weight: 600 }
+/* the Backups card (2026-09-20) */
+.bk-kind { margin-top: 8px } .bk-list { margin-top: 2px } .bk-acts { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap }
+
+/* the Tests tab, live: a stage running now pulses; one still to come waits quietly (2026-09-20) */
+.lg.run { background: rgba(139, 92, 246, .14); color: var(--accent); animation: tp-pulse 1.3s ease-in-out infinite } .dc-row.run .dc-name { color: var(--accent) } .dc-row.waiting .dc-name, .dc-row.waiting .dc-rule { color: var(--dim) } .dc-row.run .dc-dot { background: var(--accent); animation: tp-pulse 1.3s ease-in-out infinite } .dc-row.waiting .dc-dot { background: var(--line2) }
+@keyframes tp-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+
+/* Home's Alerts: the project filter, right of the views (2026-09-20) */
+.al-proj-pick { font: inherit; font-size: 11.5px; color: var(--muted); background: transparent; border: 1px solid var(--line2); border-radius: 6px; padding: 2px 6px; max-width: 160px }
+
+/* the card picker's answer: readable, not an aside (2026-09-20) */
+.ac-why { color: var(--text); font-size: 12.5px } .ac-why a { color: var(--accent) }
+
+/* stacks (2026-09-20): the small switch in a card's header, left of the lock; on the desk the front card carries a row of file
+   tabs above it, one per project; in a dock the members' tabs sit in one group */
+.ch .sw-sm { width: 28px; height: 16px; flex: 0 0 28px; opacity: .8 } .ch .sw-sm .swk { border-radius: 16px } .ch .sw-sm .swk::before { width: 12px; height: 12px; left: 2px; top: 2px } .ch .sw-sm input:checked + .swk { background: var(--accent) } .ch .sw-sm input:checked + .swk::before { transform: translateX(12px) }
+.card.stacked { overflow: visible }   /* the tabs sit above the card's edge; the body clips its own content (.cb overflow:auto) */
+.stack-tabs { position: absolute; left: 10px; top: -24px; height: 24px; display: flex; gap: 3px; align-items: flex-end; z-index: 2 }
+.stab { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 10px; font-size: 11.5px; color: var(--muted); background: var(--panel); border: 1px solid var(--line2); border-bottom: 0; border-radius: 8px 8px 0 0; cursor: pointer; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis }
+.stab:hover { color: var(--text) } .stab.on { color: var(--text); background: var(--panel2, var(--panel)); border-color: var(--accent); height: 24px }
+.stab-ico { display: inline-flex; line-height: 0 }
+.dtab-group { width: auto; min-width: 44px; padding: 4px; gap: 2px; flex-wrap: wrap; justify-content: center } .dock-top .dtab-group { flex-wrap: nowrap }
+.dsub { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 7px; cursor: pointer; opacity: .7 } .dsub:hover { opacity: 1; background: var(--line2) } .dsub.on { opacity: 1; background: var(--accent); color: var(--accent-ink, #fff) }
+
+/* an alert's detail card, at the top of the Alerts card (2026-09-20) */
+.al-detail { margin: 4px 0 10px } .al-detail .fd-what { white-space: pre-wrap }
+
+/* a ticket's buttons at the top of its page (2026-09-21) */
+.fd-acts-top { margin: 6px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line) }
+
+/* pictures pasted into the conversation box, shown before they are sent (2026-09-25) */
+.cv-pics { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.cv-pic { position: relative; display: inline-block }
+.cv-pic img { height: 56px; max-width: 120px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line2); display: block }
+.cv-pic b { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; line-height: 18px; text-align: center; font-size: 11px; border-radius: 50%; background: var(--panel2); color: var(--text); border: 1px solid var(--line2); cursor: pointer }
+
+/* the Add coder form on the Agent fleet card - styled here, not inline: the browser rewrites inline styles ("margin:8px 0" to "margin: 8px 0px;"), so the card always looked changed and redrew itself several times a second, replacing the name box under the pointer (2026-09-26) */
+.fa-add { margin: 0 0 8px } .fa-add #fl-coder { width: 160px } .fa-add-err { color: var(--amber) }
+.fa-hadd { margin-left: 10px; font-weight: normal } .fa-add-box { padding: 6px 10px; border-bottom: 1px solid var(--line2) } .fa-add-box .fa-name { width: 180px }
+
+/* the Notes card (2026-09-26) */
+.nt { display: flex; flex-direction: column; gap: 4px; height: 100% }
+.nt-box { flex: 1 1 auto; min-height: 120px; width: 100%; box-sizing: border-box; resize: none; background: var(--bg2); color: var(--text); border: 1px solid var(--line2); border-radius: 8px; padding: 8px 10px; font-size: 13px; line-height: 1.5; font-family: inherit }
+.nt-status.bad { color: var(--amber) }
+
+/* the Data views card (2026-09-26) */
+.dv { display: flex; flex-direction: column; gap: 6px; height: 100% } .dv-bar { display: flex; align-items: center; gap: 6px } .dv-about { margin-top: -2px }
+.dv-wrap { overflow: auto; flex: 1 1 auto; border: 1px solid var(--line2); border-radius: 8px }
+.dv-t { border-collapse: collapse; width: 100%; font-size: 12px } .dv-t th { position: sticky; top: 0; background: var(--panel2); text-align: left; padding: 5px 8px; font-weight: 600; white-space: nowrap } .dv-t td { padding: 4px 8px; border-top: 1px solid var(--line); vertical-align: top }

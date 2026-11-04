@@ -1,0 +1,27 @@
+{
+  "_note": "Needs-attention rules. A label on an open ticket puts it on the card under a kind, ranked (lower first); the ticket's assignee is who has to move. 'you' is the login the wizard named. A project overrides any field in <project>/.cockpit/plugins/github.attention.json with the same shape. Note: a ROUTING label (needs:fleet) is not a stuck state and must not be listed.",
+  "labels": {
+    "needs:decision":   { "kind": "decide",   "rank": 0, "verb": "needs a decision" },
+    "needs:click":      { "kind": "click",    "rank": 1, "verb": "needs someone to do it by hand" },
+    "needs:evidence":   { "kind": "evidence", "rank": 2, "verb": "needs evidence before it can move" },
+    "blocked:external": { "kind": "external", "rank": 3, "verb": "blocked outside the team" },
+    "needs:qa":         { "kind": "qa",       "rank": 4, "verb": "waiting for the tester" }
+  },
+  "titleTags": {
+    "_note": "a tag in a ticket TITLE that names who must move, resolved through the people map by login - e.g. \"[NEEDS SAM\": \"octocat\". A project adds its own in its override file; none by default."
+  },
+  "groups": [
+    { "kind": "decide",   "title": "Decisions waiting",            "help": "nobody can move until someone chooses" },
+    { "kind": "click",    "title": "Somebody must do it by hand",  "help": "no code will fix these" },
+    { "kind": "evidence", "title": "Waiting for evidence",         "help": "" },
+    { "kind": "external", "title": "Blocked outside the team",     "help": "" },
+    { "kind": "qa",       "title": "Waiting for the tester",       "help": "" },
+    { "kind": "failing",  "title": "Failing",                      "help": "an open PR whose checks are red" }
+  ],
+  "summaries": {
+    "localPrsWaiting": { "on": true, "kind": "click", "rank": 1, "who": "you",
+      "title": "{n} local-model PR{s} waiting for a frontier to finish and merge",
+      "text": "{list} - unclaimed; nobody is working on them while the frontier agents are off" },
+    "failingPr": { "on": true, "kind": "failing", "rank": 0, "who": "{author}", "text": "checks failing on an open PR" }
+  }
+}

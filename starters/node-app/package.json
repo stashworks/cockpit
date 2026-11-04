@@ -1,0 +1,16 @@
+{
+  "name": "{{NAME}}",
+  "version": "0.1.0",
+  "description": "{{TITLE}} - {{PURPOSE}}",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js",
+    "check": "node --check server.js && node --test test/*.test.js"
+  }
+}

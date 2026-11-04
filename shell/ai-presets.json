@@ -1,0 +1,47 @@
+{
+  "_about": "Known command-line AIs, ready to add from Settings › AI. Each entry is what the maker's own docs said on the date noted - their flags and model ids, not Cockpit's; they change. A preset that stops answering is a stale flag: check the tool's --help and Edit the entry. The built-in three (Claude Code, Codex CLI, Local) are not here - the engine knows them itself.",
+  "presets": [
+    {
+      "key": "gemini", "label": "Gemini CLI", "what": "Google's coding agent. Free tier with a Google account; API key or Vertex for more.",
+      "command": "gemini", "args": "-p \"{prompt}\" -m {model} --approval-mode=yolo",
+      "models": "gemini-3-pro-preview=Gemini 3 Pro, gemini-3-flash-preview=Gemini 3 Flash, gemini-2.5-pro=Gemini 2.5 Pro, gemini-2.5-flash=Gemini 2.5 Flash",
+      "site": "https://github.com/google-gemini/gemini-cli", "install": "npm install -g @google/gemini-cli",
+      "signin": "gemini  (then choose Login with Google in the browser it opens)", "checked": "2026-09-19"
+    },
+    {
+      "key": "grok", "label": "Grok Build", "what": "xAI's coding agent (the grok command). Signs in with your xAI account or an API key.",
+      "command": "grok", "args": "-p \"{prompt}\" -m {model}",
+      "models": "grok-4.6=Grok 4.6",
+      "site": "https://docs.x.ai/build/overview", "install": "irm https://x.ai/cli/install.ps1 | iex   (Windows)   ·   curl -fsSL https://x.ai/cli/install.sh | bash   (macOS, Linux)",
+      "signin": "grok login", "checked": "2026-09-19"
+    },
+    {
+      "key": "copilot", "label": "Copilot CLI", "what": "GitHub's coding agent. Runs on a GitHub Copilot subscription.",
+      "command": "copilot", "args": "-p \"{prompt}\" --model {model} --allow-all",
+      "models": "claude-sonnet-4.5=Claude Sonnet 4.5, gpt-5=GPT-5",
+      "site": "https://github.com/github/copilot-cli", "install": "npm install -g @github/copilot",
+      "signin": "copilot  (then type /login and follow the browser)", "checked": "2026-09-19"
+    },
+    {
+      "key": "opencode", "label": "OpenCode", "what": "An open-source coding agent that drives many providers; the model id is provider/model.",
+      "command": "opencode", "args": "run --model {model} \"{prompt}\"",
+      "models": "anthropic/claude-sonnet-4-5=Claude Sonnet 4.5 via OpenCode, openai/gpt-5=GPT-5 via OpenCode",
+      "site": "https://opencode.ai/docs", "install": "npm install -g opencode-ai   ·   or   curl -fsSL https://opencode.ai/install | bash",
+      "signin": "opencode auth login   (pick the provider, paste its key)   ·   opencode models lists the ids", "checked": "2026-09-19"
+    },
+    {
+      "key": "qwen", "label": "Qwen Code", "what": "Alibaba's coding agent. Free tier with a Qwen account.",
+      "command": "qwen", "args": "-p \"{prompt}\" -m {model} --yolo",
+      "models": "qwen3-coder-plus=Qwen3 Coder Plus",
+      "site": "https://github.com/QwenLM/qwen-code", "install": "npm install -g @qwen-code/qwen-code@latest",
+      "signin": "qwen  (then /auth and choose Qwen OAuth in the browser)", "checked": "2026-09-19"
+    },
+    {
+      "key": "aider", "label": "Aider", "what": "The original open-source pair programmer; brings its own provider keys, edits files and commits.",
+      "command": "aider", "args": "--message \"{prompt}\" --model {model} --yes-always --no-auto-commits",
+      "models": "sonnet=Claude Sonnet via Aider, gpt-4o=GPT-4o via Aider, deepseek=DeepSeek via Aider",
+      "site": "https://aider.chat/docs/install.html", "install": "python -m pip install aider-install && aider-install",
+      "signin": "no sign-in - set the provider's API key in the environment the engine runs in (OPENAI_API_KEY, ANTHROPIC_API_KEY…)", "checked": "2026-09-19"
+    }
+  ]
+}

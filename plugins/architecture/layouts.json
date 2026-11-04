@@ -1,0 +1,143 @@
+{
+  "_note": "Default Flow layouts by project type: the four columns a feature is made of - Screens -> Actions -> Logic -> Data - matched by the layer lens the scan writes, so every project type shares them; only the edges drawn differ. The scan copies the matching one into <project>/.cockpit/plugins/architecture.layout.json; an unedited copy follows the type, an edited one is never touched. Columns match by kind (a node's kind tag), nodeKind, tag ('ns:value'), role (source | hub | sink | isolated) or folder (path prefix); a node lands in the first column it matches.",
+  "website-php": {
+    "columns": [
+      {
+        "title": "Screens",
+        "help": "what a person sees - pages, components, styles",
+        "match": {
+          "tag": [
+            "layer:screens"
+          ]
+        }
+      },
+      {
+        "title": "Actions",
+        "help": "what a screen can ask for - the routes, each the single door into a feature",
+        "match": {
+          "tag": [
+            "layer:actions"
+          ]
+        }
+      },
+      {
+        "title": "Logic",
+        "help": "the code that does the work - the only layer that reads and writes",
+        "match": {
+          "tag": [
+            "layer:logic"
+          ]
+        }
+      },
+      {
+        "title": "Data",
+        "help": "the tables, and the migrations that define them - one owner each",
+        "match": {
+          "tag": [
+            "layer:data"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      "include",
+      "link",
+      "form",
+      "fetch",
+      "script",
+      "reads",
+      "writes"
+    ]
+  },
+  "markdown": {
+    "columns": [
+      {
+        "title": "Screens",
+        "help": "what a person sees - pages, components, styles",
+        "match": {
+          "tag": [
+            "layer:screens"
+          ]
+        }
+      },
+      {
+        "title": "Actions",
+        "help": "what a screen can ask for - the routes, each the single door into a feature",
+        "match": {
+          "tag": [
+            "layer:actions"
+          ]
+        }
+      },
+      {
+        "title": "Logic",
+        "help": "the code that does the work - the only layer that reads and writes",
+        "match": {
+          "tag": [
+            "layer:logic"
+          ]
+        }
+      },
+      {
+        "title": "Data",
+        "help": "the tables, and the migrations that define them - one owner each",
+        "match": {
+          "tag": [
+            "layer:data"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      "link"
+    ]
+  },
+  "typescript": {
+    "columns": [
+      {
+        "title": "Screens",
+        "help": "what a person sees - pages, components, styles",
+        "match": {
+          "tag": [
+            "layer:screens"
+          ]
+        }
+      },
+      {
+        "title": "Actions",
+        "help": "what a screen can ask for - the routes, each the single door into a feature",
+        "match": {
+          "tag": [
+            "layer:actions"
+          ]
+        }
+      },
+      {
+        "title": "Logic",
+        "help": "the code that does the work - the only layer that reads and writes",
+        "match": {
+          "tag": [
+            "layer:logic"
+          ]
+        }
+      },
+      {
+        "title": "Data",
+        "help": "the tables, and the migrations that define them - one owner each",
+        "match": {
+          "tag": [
+            "layer:data"
+          ]
+        }
+      }
+    ],
+    "edges": [
+      "calls",
+      "declares",
+      "reads",
+      "writes",
+      "defines",
+      "import"
+    ]
+  }
+}

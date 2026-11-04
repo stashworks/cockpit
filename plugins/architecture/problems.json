@@ -1,0 +1,474 @@
+{
+  "_note": "The Problems lens rules. Detection lives in scan.js; everything the owner will want to tune lives here: whether a rule is on, its threshold, its default severity (bad | warn | ok | info) and its wording. Reloaded on every scan. A project overrides any field in <project>/.cockpit/plugins/architecture.problems.json with the same shape (only the rules and fields it names). The owner's grades set in Cockpit still win over the band here. Each rule may name the doctrine rule it detects (`doctrine`, from prompts/doctrine.md); the legend shows it, so the map is the retroactive check the doctrine asks for. Rules marked slop: true are the AI-slop catalogue - habits of machine-written code; add one when a new model shows a new habit (a count in scan.js slopCounts, a rule here). min = the per-file count that makes a finding. Rules marked slop: true are the AI-slop catalogue - habits of machine-written code; add one when a new model shows a new habit (a count in scan.js slopCounts, a rule here). min = the per-file count that makes a finding. weight = how likely the finding BITES, 1-5 (fake success bites on every failure; a dead route almost never); with churn and tested it makes the likelihood side of the risk matrix. Rules marked shape: true check the four-column shape (Screens -> Actions -> Logic -> Data, arrows one way). Rules marked decl: true check DECLARATIONS (tags.json) against what the code does - the Declarations block on Problems. `stage` names the test stage a rule reports under (plugins/architecture/stages.json). `stage` names the test stage a rule reports under (plugins/architecture/stages.json).",
+  "rules": {
+    "no-single-writer": { "on": true, "band": "warn", "minWriters": 4,
+      "label": "no single writer",
+      "why": "a table written from this many files has no owner; a change to its shape has to be found everywhere", "doctrine": "one-writer-per-resource", "weight": 3, "stage": "quality"
+    },
+    "sql-in-page": { "on": true, "band": "warn",
+      "label": "SQL in the page",
+      "why": "a file that renders HTML and writes the database mixes presentation with data; nothing can be tested or reused on its own", "weight": 3, "stage": "quality"
+    },
+    "own-db-connection": { "on": true, "band": "warn", "minFiles": 2,
+      "label": "own database connection",
+      "why": "more than one file opens its own connection; credentials and settings live in several places", "weight": 2, "stage": "quality"
+    },
+    "duplicate-function": { "on": true, "band": "warn",
+      "label": "duplicate function",
+      "why": "the same function name defined in more than one file - copy-paste twins that drift apart", "weight": 3, "stage": "quality"
+    },
+    "god-file": { "on": true, "band": "warn", "minReach": 25, "topPercent": 1,
+      "label": "god file",
+      "why": "one file reaching an outsized share of the code and data; everything routes through it", "weight": 3, "stage": "quality"
+    },
+    "secret-in-code": { "on": true, "band": "bad",
+      "label": "secret in code",
+      "why": "a password or key literal in source is in every copy and every backup", "doctrine": "context-as-code", "weight": 5, "stage": "secrets"
+    },
+    "nothing-points-here": { "on": true, "band": "info", "skipExtensions": [
+        "css",
+        "js"
+      ],
+      "label": "nothing points here",
+      "why": "an entry point, a scheduled script, or dead - the scanner cannot tell which", "doctrine": "visible-or-unwanted", "weight": 1, "stage": "quality"
+    },
+    "read-never-written": { "on": true, "band": "info",
+      "label": "read, never written",
+      "why": "filled from outside this code - an import, another app, or by hand", "doctrine": "every-queue-needs-a-consumer", "weight": 1, "stage": "quality"
+    },
+    "defined-never-used": { "on": true, "band": "info",
+      "label": "defined, never used",
+      "why": "a migration creates the table and nothing in this code touches it - either dead schema or owned by something outside this repo", "weight": 1, "stage": "quality"
+    },
+    "write-never-read": { "on": true, "band": "warn", "doctrine": "every-queue-needs-a-consumer",
+      "label": "written, never read",
+      "why": "code writes this table and nothing here reads it - a queue with no consumer, or dark data nobody will act on", "weight": 2, "stage": "quality"
+    },
+    "table-not-in-db": { "on": true, "band": "warn", "weight": 3, "stage": "migration",
+      "label": "table not in the database",
+      "why": "the code names this table and the live database (Database plugin) does not hold it - a rename, a migration not yet run, a test-only table, or prose the scanner took for a table", "doctrine": "never-trust-reported-success"
+    },
+    "table-nothing-touches": { "on": true, "band": "info", "weight": 1, "stage": "quality",
+      "label": "table nothing touches",
+      "why": "the live database (Database plugin) holds this table and no code here reads, writes or defines it - dead data, or owned by something outside this repo", "doctrine": "every-queue-needs-a-consumer"
+    },
+    "test-without-assertion": { "on": true, "band": "bad", "doctrine": "verify-the-verifier",
+      "label": "test that cannot fail",
+      "why": "a test file with no assertion passes whatever the code does - coverage theater", "weight": 4, "stage": "unit"
+    },
+    "empty-catch": { "on": true, "band": "warn", "min": 1, "slop": true,
+      "label": "swallowed error",
+      "why": "an empty catch block: the failure happens and nobody hears - the classic machine-written shortcut", "weight": 4, "stage": "sast"
+    },
+    "fake-success": { "on": true, "band": "bad", "min": 1, "slop": true,
+      "label": "fake success",
+      "why": "a catch that returns canned data ([] / {} / ok:true / null) with no throw and no log - the caller believes the call worked", "doctrine": "never-trust-reported-success", "weight": 5, "stage": "sast"
+    },
+    "todo-stub": { "on": true, "band": "warn", "min": 3, "slop": true,
+      "label": "TODO stubs",
+      "why": "TODO / FIXME / placeholder / not implemented left in - unfinished work presented as finished", "weight": 2, "stage": "quality"
+    },
+    "debug-logging": { "on": true, "band": "info", "min": 5, "slop": true,
+      "label": "debug logging",
+      "why": "console.log left in a production path (scripts, tests and tooling are exempt)", "weight": 1, "stage": "quality"
+    },
+    "commented-out-code": { "on": true, "band": "info", "min": 1, "slop": true,
+      "label": "commented-out code",
+      "why": "blocks of code kept in comments \"just in case\" - git is the just-in-case; the block rots and misleads", "weight": 1, "stage": "quality"
+    },
+    "unbounded-query": { "on": true, "band": "info", "min": 1, "slop": true,
+      "label": "unbounded query",
+      "why": "SELECT with neither WHERE nor LIMIT - correct on a small table, a stall once it grows", "weight": 3, "stage": "sast"
+    },
+    "uncapped-retry": { "on": true, "band": "warn", "min": 1, "slop": true,
+      "label": "uncapped retry",
+      "why": "an endless loop that awaits and catches with no attempt cap - a failing dependency becomes a hot loop", "doctrine": "caps-in-code-not-prompts", "weight": 4, "stage": "sast"
+    },
+    "type-escape": { "on": true, "band": "info", "min": 5, "slop": true,
+      "label": "type escapes",
+      "why": "as any / @ts-ignore / : any - the type checker switched off exactly where it complained", "weight": 2, "stage": "quality"
+    },
+    "dead-route": { "on": true, "band": "info", "slop": true,
+      "label": "dead route",
+      "why": "an HTTP route nothing in this code calls - an external client, a mobile app, or dead; the scanner cannot tell which", "weight": 1, "stage": "quality"
+    },
+    "screen-touches-data": { "on": true, "band": "bad", "weight": 4, "shape": true,
+      "label": "screen touches data",
+      "why": "a screen reads or writes a table directly - it skipped the action and the logic; nothing checks who asked", "doctrine": "one-writer-per-resource", "stage": "architecture"
+    },
+    "sql-in-action": { "on": true, "band": "warn", "weight": 3, "shape": true,
+      "label": "SQL in the door",
+      "why": "a route file queries tables itself - the door should check who asks and hand off to logic; the query cannot be reused or tested alone", "stage": "architecture"
+    },
+    "cross-feature-write": { "on": true, "band": "bad", "weight": 4, "shape": true,
+      "label": "writes another feature's table",
+      "why": "code in one feature writes a table another feature owns - two owners of one shape; a change to the table breaks a feature that never sees it", "doctrine": "one-writer-per-resource", "stage": "architecture"
+    },
+    "line-points-up": { "on": true, "band": "bad", "weight": 4, "shape": true,
+      "label": "line points up",
+      "why": "a shared service depends on a module, or a module on the dashboard - lines point down only, so a lower level can be built, tested and switched on without the one above it (families)", "stage": "architecture"
+    },
+    "module-reaches-into-module": { "on": true, "band": "bad", "weight": 4, "shape": true,
+      "label": "reads another module's tables",
+      "why": "a module reads a table another module owns - it should ask that module through its functions; reading its tables couples the two and leaks past its permission checks (families)", "stage": "architecture"
+    },
+    "undeclared-module-dependency": { "on": true, "band": "bad", "weight": 3, "shape": true,
+      "label": "undeclared module dependency",
+      "why": "a module calls or imports another module it does not list under \"## Depends on\" in its README - an unreviewed line between modules (families)", "stage": "architecture"
+    },
+    "action-calls-action": { "on": true, "band": "info", "weight": 2, "shape": true,
+      "label": "door calls door",
+      "why": "a route file calls another route - the work should be in logic both doors can call", "stage": "architecture"
+    },
+    "data-reaches-up": { "on": true, "band": "warn", "weight": 3, "shape": true,
+      "label": "data reaches up",
+      "why": "a migration or schema file imports code - data defines shape; it never depends on logic or screens", "stage": "architecture"
+    },
+    "tag-without-readme": { "on": true, "band": "warn", "weight": 2, "decl": true,
+      "label": "feature with no README",
+      "why": "a file names a feature that has no README and no mapping entry - a feature exists when its README exists", "stage": "architecture"
+    },
+    "readme-without-files": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "README with no files",
+      "why": "a feature is declared but no file carries its @feature", "stage": "architecture"
+    },
+    "feature-twice": { "on": true, "band": "warn", "weight": 2, "decl": true,
+      "label": "two features",
+      "why": "a file declaring two features - a file belongs to one", "stage": "architecture"
+    },
+    "kind-disagrees": { "on": true, "band": "bad", "weight": 4, "decl": true,
+      "label": "kind disagrees",
+      "why": "the declared @kind disagrees with what the file does - a logic file declaring routes, a screen reading a table", "stage": "architecture"
+    },
+    "kind-unknown": { "on": true, "band": "warn", "weight": 2, "decl": true,
+      "label": "unknown kind",
+      "why": "a @kind value not in the schema", "stage": "architecture"
+    },
+    "flow-without-test": { "on": true, "band": "warn", "weight": 3, "decl": true,
+      "label": "flow without a test",
+      "why": "a flow the README defines that no test names - unproven", "doctrine": "verify-the-verifier", "stage": "flow"
+    },
+    "test-names-unknown-flow": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "test names unknown flow",
+      "why": "a test naming a flow no README or mapping defines", "stage": "flow"
+    },
+    "flow-not-in-feature": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "flow of another feature",
+      "why": "a screen naming a flow its feature does not define", "stage": "architecture"
+    },
+    "flow-step-missing": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "flow step names nothing",
+      "why": "a flow step names a screen or action the scan cannot find - a typo, or a step that does not exist yet", "stage": "architecture"
+    },
+    "purpose-missing": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "no @purpose",
+      "why": "a header with no @purpose - one sentence so anyone opening the file knows what it is for", "stage": "architecture"
+    },
+    "purpose-long": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "@purpose too long",
+      "why": "more than a sentence; the narrative belongs in the feature README", "stage": "architecture"
+    },
+    "owned-table-written-elsewhere": { "on": true, "band": "bad", "weight": 4, "decl": true,
+      "label": "owned table written elsewhere",
+      "why": "a README says a feature owns this table and another feature writes it", "doctrine": "one-writer-per-resource", "stage": "architecture"
+    },
+    "listed-table-undefined": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "listed table undefined",
+      "why": "a README lists a table nothing defines or touches", "stage": "architecture"
+    },
+    "table-unowned": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "table nobody owns",
+      "why": "no README or mapping lists this table under a feature (only once any feature is declared)", "stage": "architecture"
+    },
+    "tag-missing": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "tag missing",
+      "why": "a file that should carry a tag by the schema's applies-to and does not - the rollout list", "stage": "architecture"
+    },
+    "tag-unknown": { "on": true, "band": "warn", "weight": 2, "decl": true,
+      "label": "unknown tag",
+      "why": "a @tag not in tags.json - a tag enters through the schema, never through one file", "stage": "architecture"
+    },
+    "mapping-redundant": { "on": true, "band": "info", "weight": 1, "decl": true,
+      "label": "mapping entry redundant",
+      "why": "the file's header now carries what the mapping file says - remove the entry; the file empties as the code becomes self-describing", "stage": "architecture"
+    },
+    "sql-string-built": { "on": true, "band": "warn", "weight": 4, "min": 1, "slop": true, "stage": "sast",
+      "label": "SQL built by concatenation",
+      "why": "a SQL string joined to a variable with + - the door to injection; bind parameters instead"
+    },
+    "eval-use": { "on": true, "band": "bad", "weight": 4, "min": 1, "slop": true, "stage": "sast",
+      "label": "eval",
+      "why": "eval / new Function runs code from data"
+    },
+    "shell-with-input": { "on": true, "band": "bad", "weight": 5, "min": 1, "slop": true, "stage": "sast",
+      "label": "shell with input",
+      "why": "a shell command built from request input - command injection"
+    },
+    "raw-html-from-data": { "on": true, "band": "warn", "weight": 3, "min": 1, "slop": true, "stage": "sast",
+      "label": "raw HTML from data",
+      "why": "HTML from a variable rendered without escaping - cross-site scripting"
+    },
+    "path-from-input": { "on": true, "band": "bad", "weight": 4, "min": 1, "slop": true, "stage": "sast",
+      "label": "path from input",
+      "why": "a file operation on a path from request input - path traversal"
+    },
+    "open-redirect": { "on": true, "band": "warn", "weight": 3, "min": 1, "slop": true, "stage": "sast",
+      "label": "open redirect",
+      "why": "a redirect to a URL from request input"
+    },
+    "env-committed": { "on": true, "band": "bad", "weight": 5, "stage": "secrets",
+      "label": ".env committed",
+      "why": "an environment file in the repository - every clone and every backup has the secrets"
+    },
+    "secret-in-config": { "on": true, "band": "bad", "weight": 5, "stage": "secrets",
+      "label": "secret in config",
+      "why": "a password, key or token literal in a config file"
+    },
+    "secret-in-log": { "on": true, "band": "bad", "weight": 4, "stage": "secrets",
+      "label": "secret in a log",
+      "why": "a password, key or token written to a log file"
+    },
+    "env-example-incomplete": { "on": true, "band": "warn", "weight": 2, "stage": "architecture",
+      "label": ".env.example incomplete",
+      "why": "a variable the code reads is not in .env.example - the next machine will not know to set it"
+    },
+    "migration-edited-after-run": { "on": true, "band": "warn", "weight": 3, "stage": "architecture",
+      "label": "migration edited after it ran",
+      "why": "a numbered migration changed after the next one existed - copies that already ran it never see the change"
+    },
+    "lockfile-missing": { "on": true, "band": "warn", "weight": 2, "stage": "sca",
+      "label": "no lockfile",
+      "why": "installs are not reproducible without a committed lockfile"
+    },
+    "vulnerable-dependency": { "on": true, "band": "warn", "weight": 3, "stage": "sca",
+      "label": "vulnerable dependency",
+      "why": "npm audit reports known vulnerabilities in production dependencies"
+    },
+    "outdated-major": { "on": true, "band": "info", "weight": 1, "stage": "sca",
+      "label": "outdated major",
+      "why": "a dependency a major version behind - the upgrade only gets harder"
+    },
+    "lint-error": { "on": true, "band": "warn", "weight": 2, "stage": "lint",
+      "label": "lint errors",
+      "why": "the project's own linter reports errors in the file"
+    },
+    "lint-warning": { "on": true, "band": "info", "weight": 1, "stage": "lint",
+      "label": "lint warnings (5+)",
+      "why": "five or more lint warnings in the file"
+    },
+    "test-failing": { "on": true, "band": "bad", "weight": 4, "stage": "unit",
+      "label": "failing test",
+      "why": "a test file failed in the last run - the code is broken or the test is"
+    },
+    "flow-not-clicked": { "on": true, "band": "warn", "weight": 3, "decl": true,
+      "label": "flow not clicked through",
+      "why": "a flow with a test that calls the pages, but none that clicks them in a browser - a broken button or a dead screen still passes (functional tests are the README flow clicked through)", "doctrine": "verify-the-verifier", "stage": "flow"
+    },
+    "flow-skipped": { "on": true, "band": "info", "weight": 1, "stage": "flow",
+      "label": "flow skipped - not proven",
+      "why": "its test passed but skipped part of the flow, with a stated reason (a switch off, no storage, a provider login) - grey, not green: what was skipped is unproven", "doctrine": "never-trust-reported-success"
+    },
+    "flow-failing": { "on": true, "band": "bad", "weight": 4, "stage": "flow",
+      "label": "flow failing",
+      "why": "the test that proves this flow failed in the last run", "doctrine": "never-trust-reported-success"
+    },
+    "door-open": { "on": true, "band": "bad", "weight": 5, "stage": "permissions",
+      "label": "open door",
+      "why": "a route answered an unauthenticated request with 2xx in the last run and is not declared public - anyone can call it"
+    },
+    "contract-break": { "on": true, "band": "warn", "weight": 4, "stage": "contract",
+      "label": "contract break",
+      "why": "a GET route's status or JSON shape changed against what was recorded - screens and external clients depending on it break"
+    },
+    "migration-irreversible": { "on": true, "band": "warn", "weight": 3, "stage": "migration",
+      "label": "migration cannot come back",
+      "why": "a migration with no .down.sql - the promote script cannot restore the previous release past it"
+    },
+    "migration-cycle-failed": { "on": true, "band": "bad", "weight": 4, "stage": "migration",
+      "label": "migration cycle failed",
+      "why": "up-down-up on the test database failed - a migration or its reverse is wrong", "doctrine": "state-changes-carry-fallback"
+    },
+    "smoke-failed": { "on": true, "band": "bad", "weight": 5, "stage": "smoke",
+      "label": "promote smoke failed",
+      "why": "the promoted environment did not read back healthy; the script restored the previous release, or could not", "doctrine": "never-trust-reported-success"
+    },
+    "sast-xss": { "on": true, "band": "bad", "weight": 5, "stage": "sast",
+      "label": "SAST: Cross-Site-Scripting (XSS) (semgrep)",
+      "why": "user input reaching a page unescaped - a script anyone can plant runs in every visitor's browser"
+    },
+    "sast-sql-injection": { "on": true, "band": "bad", "weight": 5, "stage": "sast",
+      "label": "SAST: SQL Injection (semgrep)",
+      "why": "user input reaching a query as text - the database does what the visitor types"
+    },
+    "sast-command-injection": { "on": true, "band": "bad", "weight": 5, "stage": "sast",
+      "label": "SAST: Command Injection (semgrep)",
+      "why": "user input reaching a shell command - the machine does what the visitor types"
+    },
+    "sast-code-injection": { "on": true, "band": "bad", "weight": 5, "stage": "sast",
+      "label": "SAST: Code Injection (semgrep)",
+      "why": "user input evaluated as code (eval and its cousins)"
+    },
+    "sast-secrets": { "on": true, "band": "bad", "weight": 5, "stage": "sast",
+      "label": "SAST: Hard-coded Secrets (semgrep)",
+      "why": "a password, key or token written into the source - anyone with the code has it"
+    },
+    "sast-crypto": { "on": true, "band": "warn", "weight": 3, "stage": "sast",
+      "label": "SAST: Cryptographic Issues (semgrep)",
+      "why": "weak or misused crypto: broken hashes, fixed salts, insecure modes"
+    },
+    "sast-sensitive-info": { "on": true, "band": "warn", "weight": 3, "stage": "sast",
+      "label": "SAST: Mishandled Sensitive Information (semgrep)",
+      "why": "sensitive data logged, echoed or sent where it should not go"
+    },
+    "sast-authentication": { "on": true, "band": "bad", "weight": 4, "stage": "sast",
+      "label": "SAST: Improper Authentication (semgrep)",
+      "why": "a sign-in that can be got around"
+    },
+    "sast-authorization": { "on": true, "band": "bad", "weight": 4, "stage": "sast",
+      "label": "SAST: Improper Authorization (semgrep)",
+      "why": "a door that does not check who is asking"
+    },
+    "sast-ssrf": { "on": true, "band": "bad", "weight": 4, "stage": "sast",
+      "label": "SAST: Server-Side Request Forgery (SSRF) (semgrep)",
+      "why": "the server fetches a url the visitor chose - reaching inside the network"
+    },
+    "sast-xml-injection": { "on": true, "band": "bad", "weight": 4, "stage": "sast",
+      "label": "SAST: XML Injection (semgrep)",
+      "why": "XML parsed with external entities or user input inside it"
+    },
+    "sast-cookie": { "on": true, "band": "warn", "weight": 2, "stage": "sast",
+      "label": "SAST: Cookie Security (semgrep)",
+      "why": "cookies without the flags that keep them off the wire and away from scripts"
+    },
+    "sast-validation": { "on": true, "band": "warn", "weight": 2, "stage": "sast",
+      "label": "SAST: Improper Validation (semgrep)",
+      "why": "input trusted without checking its shape"
+    },
+    "sast-deserialization": { "on": true, "band": "bad", "weight": 4, "stage": "sast",
+      "label": "SAST: Insecure Deserialization (semgrep)",
+      "why": "objects rebuilt from data the visitor controls"
+    },
+    "sast-path-traversal": { "on": true, "band": "bad", "weight": 4, "stage": "sast",
+      "label": "SAST: Path Traversal (semgrep)",
+      "why": "a file path built from user input - ../ reaches files it should not"
+    },
+    "sast-open-redirect": { "on": true, "band": "warn", "weight": 2, "stage": "sast",
+      "label": "SAST: Open Redirect (semgrep)",
+      "why": "a redirect to wherever the visitor says - phishing through your own domain"
+    },
+    "sast-csrf": { "on": true, "band": "warn", "weight": 3, "stage": "sast",
+      "label": "SAST: Cross-Site Request Forgery (CSRF) (semgrep)",
+      "why": "a state-changing request another site can make on the visitor's behalf"
+    },
+    "sast-other": { "on": true, "band": "warn", "weight": 2, "stage": "sast",
+      "label": "SAST: other (semgrep)",
+      "why": "a semgrep rule outside the classes above: debug code left on, dangerous functions, configuration"
+    },
+    "sast-failed": { "on": true, "band": "warn", "weight": 2, "stage": "sast",
+      "label": "SAST run did not run",
+      "why": "semgrep is not unpacked on this engine (Settings > Engine), or it stopped - the report says why"
+    },
+    "dast-high": { "on": true, "band": "bad", "weight": 5, "stage": "dast",
+      "label": "DAST: high-risk alert",
+      "why": "ZAP found it against the running app - an injection, an exposed secret, an auth bypass; what an attacker finds first"
+    },
+    "dast-medium": { "on": true, "band": "warn", "weight": 3, "stage": "dast",
+      "label": "DAST: medium-risk alert",
+      "why": "a weakness ZAP could demonstrate on the running app: missing protections, information leaks, weak headers"
+    },
+    "dast-low": { "on": true, "band": "info", "weight": 1, "stage": "dast",
+      "label": "DAST: low-risk alert",
+      "why": "hygiene ZAP noticed from outside - cookie flags, headers, disclosure; cheap to fix, noisy to leave"
+    },
+    "dast-failed": { "on": true, "band": "warn", "weight": 2, "stage": "dast",
+      "label": "DAST run did not finish",
+      "why": "the last run stopped before the alerts were read - the report says why"
+    },
+    "input-crash": { "on": true, "band": "bad", "weight": 4, "stage": "dast",
+      "label": "door crashes on input",
+      "why": "a 5xx on hostile input - the door falls over instead of refusing; every crash is a lever", "doctrine": "honest-partial-beats-guessed-whole"
+    },
+    "input-leak": { "on": true, "band": "bad", "weight": 4, "stage": "dast",
+      "label": "door leaks its build",
+      "why": "a stack trace, SQL error or file path in the answer - the app tells an attacker how it is made; answer a plain error, log the detail"
+    },
+    "input-reflected": { "on": true, "band": "bad", "weight": 5, "stage": "dast",
+      "label": "input reflected unescaped",
+      "why": "a script tag sent in came back in HTML as-is - cross-site scripting, proven on the running app", "slop": true
+    },
+    "input-slow": { "on": true, "band": "warn", "weight": 2, "stage": "dast",
+      "label": "input stalls the door",
+      "why": "one hostile payload took over 8 s - an unbounded loop, a regex, an unindexed search; one request should not tie the app up"
+    },
+    "slow-door": { "on": true, "band": "warn", "weight": 2, "stage": "performance",
+      "label": "door over budget",
+      "why": "one request alone took longer than the budget (## Tests budget:, default 1000 ms) - a missing index, an N+1, a call out", "doctrine": "measure-dont-guess-capacity"
+    },
+    "door-folds-under-load": { "on": true, "band": "bad", "weight": 4, "stage": "performance",
+      "label": "door folds under ten",
+      "why": "fine alone, but ten requests at once push its p95 past three budgets - this is what launch day looks like", "doctrine": "measure-dont-guess-capacity"
+    },
+    "door-regressed": { "on": true, "band": "warn", "weight": 2, "stage": "performance",
+      "label": "door slower than last run",
+      "why": "more than twice as slow as the previous test run - something in the last change costs time"
+    },
+    "format-drift": { "on": true, "band": "info", "weight": 1, "stage": "lint",
+      "label": "formatting drift",
+      "why": "two indent styles, two line endings, trailing blanks or no final newline in one file - the sign of several hands (or models) and no formatter; run one", "slop": true
+    },
+    "format-prettier": { "on": true, "band": "info", "weight": 1, "stage": "lint",
+      "label": "not formatted (prettier)",
+      "why": "the project has prettier and a config, and this file does not match it"
+    },
+    "file-without-kind": { "on": true, "band": "info", "weight": 1, "stage": "architecture",
+      "label": "no kind of its own",
+      "why": "a code file in a feature that is not a screen, an action, logic or data by shape, with no @kind - the shape rules cannot judge what they cannot place"
+    },
+    "login-failed": { "on": true, "band": "bad", "weight": 3, "stage": "permissions",
+      "label": "test sign-in failed",
+      "why": "the login door under ## Tests did not sign the test user in - the seed lacks the user, or the door changed; every door behind the login went unprobed", "doctrine": "never-trust-reported-success"
+    },
+    "door-refuses-user": { "on": true, "band": "info", "weight": 1, "stage": "permissions",
+      "label": "door refuses the test user",
+      "why": "refused signed in as well as signed out - fine for an admin door, a break for one a plain user should reach; the role matrix decides which"
+    },
+    "restore-failed": { "on": true, "band": "bad", "weight": 5, "stage": "restore",
+      "label": "restore drill failed",
+      "why": "backup then restore on the test database did not come back equal - the backup that would save prod does not work", "doctrine": "state-changes-carry-fallback"
+    },
+    "restore-unproven": { "on": true, "band": "warn", "weight": 2, "stage": "restore",
+      "label": "restore never drilled",
+      "why": "no backup/restore scripts (or ## Backup commands) - a backup nobody has restored from is a hope, not a backup", "doctrine": "never-trust-reported-success"
+    },
+    "backup-stale": { "on": true, "band": "bad", "weight": 4, "stage": "restore",
+      "label": "backups stopped",
+      "why": "the newest file in the declared backup folder is older than the schedule allows - the nightly job is not running"
+    },
+    "backup-none": { "on": true, "band": "bad", "weight": 4, "stage": "restore",
+      "label": "no backup has landed",
+      "why": "the declared backup folder is empty"
+    },
+    "backup-folder-missing": { "on": true, "band": "warn", "weight": 2, "stage": "restore",
+      "label": "backup folder unreadable",
+      "why": "the folder under ## Backup cannot be read from the engine's machine"
+    },
+    "backup-undeclared": { "on": true, "band": "info", "weight": 1, "stage": "restore",
+      "label": "backup folder not declared",
+      "why": "no folder: under ## Backup - the scan cannot tell whether backups are landing"
+    },
+    "architecture-doc-handwritten": { "on": true, "band": "info", "weight": 1, "stage": "architecture",
+      "label": "ARCHITECTURE.md hand-written",
+      "why": "the schema lives in tags.json and this file is generated from it; a hand-written one drifts from the schema without anyone noticing"
+    },
+    "doctrine-review-due": { "on": true, "band": "warn", "weight": 2, "stage": "doctrine",
+      "label": "doctrine review due",
+      "why": "five lessons wait in the inbox, or the oldest is over a month old - a lesson unpromoted is a lesson unlearned", "doctrine": "taste-loop"
+    }
+  },
+  "risk": {
+    "_note": "the matrix: likelihood (1-5: the check weight, +1 if the file changed 3+ times in 90 days, +1 if untested, -1 if unchanged in 90 days) x impact (1-5, the impact lens). Bands by the product.",
+    "critical": 16,
+    "high": 9,
+    "medium": 4
+  }
+}

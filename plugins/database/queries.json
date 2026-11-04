@@ -1,0 +1,13 @@
+{
+  "_note": "The reads the Database card makes, by name: GET /api/p/<id>/plugins/database/q/<name>?param=... Parameters are bound positionally in the order `params` lists them. Every read is against the project's cockpit.db (the scan's snapshot) - the card never talks to MySQL, and no SQL travels from the browser. The peek is the latest rows AS OF THE LAST SCAN; the row cap is in scan.js. Edit here, no restart.",
+  "meta":     { "sql": "SELECT key, value FROM db_meta", "params": [] },
+  "tables":   { "sql": "SELECT name, type, engine, rows, exact, data_bytes, index_bytes, columns, pk, created, updated, comment FROM db_table ORDER BY name", "params": [] },
+  "columns":  { "sql": "SELECT position, name, type, nullable, dflt, key, extra, comment FROM db_column WHERE table_name = ? ORDER BY position", "params": ["table"] },
+  "indexes":  { "sql": "SELECT name, is_unique, columns, type FROM db_index WHERE table_name = ? ORDER BY (name = 'PRIMARY') DESC, name", "params": ["table"] },
+  "keys":     { "sql": "SELECT name, columns, ref_table, ref_columns, on_update, on_delete FROM db_fk WHERE table_name = ? ORDER BY name", "params": ["table"] },
+  "keys-in":  { "sql": "SELECT table_name, name, columns, ref_columns, on_delete FROM db_fk WHERE ref_table = ? ORDER BY table_name, name", "params": ["table"] },
+  "peek":     { "sql": "SELECT columns, rows, order_by, at FROM db_peek WHERE table_name = ?", "params": ["table"] },
+  "touched":  { "sql": "SELECT substr(dst, 7) AS name, kind, COUNT(*) AS n FROM edge WHERE dst LIKE 'table:%' AND kind IN ('reads', 'writes', 'defines') GROUP BY dst, kind", "params": [] },
+  "touched-by": { "sql": "SELECT substr(src, 6) AS file, kind FROM edge WHERE dst = 'table:' || ? AND kind IN ('reads', 'writes', 'defines') ORDER BY kind, src", "params": ["table"] },
+  "drift":    { "sql": "SELECT substr(subject, 7) AS name, value, why FROM tag WHERE ns = 'problem' AND value IN ('table-not-in-db', 'table-nothing-touches') ORDER BY value, subject", "params": [] }
+}

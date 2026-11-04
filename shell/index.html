@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" type="image/png" href="/favicon.png">
+  <title>Cockpit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/engine.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body>
+<header class="top">
+  <!-- The project switcher lives where VS Code puts the workspace name: top-left. Pick a
+       project and the whole control room re-renders for it (docs/generic-ide.md §13). -->
+  <div class="brand">
+    <img class="logo" src="/img/logo.png" alt="Cockpit" title="Cockpit - code further">
+    <div class="switcher" id="switcher">
+      <button class="swbtn" id="swbtn" title="switch project"><b id="swname">No project</b><small id="swpath">pick a folder to begin</small><span class="caret">▾</span></button>
+      <div class="swmenu" id="swmenu" hidden></div>
+    </div>
+  </div>
+  <nav class="nav" id="nav">
+    <a href="/" id="navhome" data-view="home">Home</a><a href="#room" class="on" data-view="room">Control room</a><a href="#plugins" data-view="plugins">Settings</a>
+  </nav>
+  <div class="tools"><span class="aipick" id="aipick" title="the AI this project uses, everywhere" hidden><span class="dim small">AI</span> <select id="ai-harness"></select> <select id="ai-model"></select></span><span id="engine" class="small dim"></span><span id="scenes" class="scenes" title="scenes - named desks"></span> <button id="addcardbtn" title="Put another project's card on this desk - it stays that project's">＋ Card</button> <button id="savedefault" title="Keep this arrangement as the project's default - what Reset returns to">Save layout</button> <button id="reset" title="Put every card back to the project's default (or the engine's, if none was saved)">Reset layout</button><span class="avatar">D</span></div>
+</header>
+<main>
+  <section id="view-room" class="view on">
+    <div id="noproject" class="empty" hidden>
+      <div class="welcome">
+        <h2>Cockpit</h2>
+        <p>One engine, many projects. A project is a folder; Cockpit keeps what it knows about it in a <code>.cockpit</code> folder inside it, so the folder can move and nothing is lost.</p>
+        <p><span class="btn" id="openfolder">Open a folder…</span></p>
+        <p class="small dim">Recent projects are in the switcher, top-left.</p>
+      </div>
+    </div>
+    <div id="addcard" class="cmenu addcard" hidden></div>
+    <div id="scnmenu" class="cmenu scnmenu" hidden></div>
+    <div id="room" class="room"></div>
+  </section>
+  <!-- Plugins: what this project is made of. A page, not a card: choose
+       plugins here, configure them here; the room shows only the cards of what is selected. -->
+  <section id="view-plugins" class="view"><div class="plpage" id="plpage"></div></section>
+</main>
+<footer id="foot"></footer>
+
+<!-- Open-folder dialog: the engine lists one level at a time (drives, then subfolders). -->
+<div id="dlg" class="dlg" hidden>
+  <div class="dlgbox">
+    <div class="dlghd"><b>Open a folder as a project</b><span class="dlgx" id="dlgx">✕</span></div>
+    <div class="dlgpath"><input id="dlgpathin" placeholder="C:\path\to\project" spellcheck="false"><button class="btn ghost" id="dlggo">Go</button></div>
+    <div class="dlglist" id="dlglist"></div>
+    <div class="dlgft"><span class="small dim" id="dlghint"></span><span class="btn" id="dlgopen">Open this folder</span></div>
+  </div>
+</div>
+
+<script src="/icons.js"></script>
+<script src="/layout.js"></script>
+<script src="/boxcards.js"></script>
+<script src="/scenes.js"></script>
+<script src="/cards/project.js"></script>
+<script src="/cards/files.js"></script>
+<script src="/cards/file.js"></script>
+<script src="/cards/conversation.js"></script>
+<script src="/cards/fleet.js"></script>
+<script src="/cards/performance.js"></script>
+<script src="/cards/backups.js"></script>
+<script src="/cards/notes.js"></script>
+<script src="/cards/views.js"></script>
+<script src="/cards/home.js"></script>
+<script src="/cards/plugins.js"></script>
+<script src="/app.js"></script>
+<script src="/wizard.js"></script>
+</body>
+</html>

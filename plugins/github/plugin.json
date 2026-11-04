@@ -1,0 +1,46 @@
+{
+  "name": "github",
+  "label": "GitHub",
+  "group": "coding",
+  "purpose": "The connection to GitHub: which repository this project is, which account it works as, who the people are. The ticket process itself is the Tickets plugin's and runs without this; with this on, certain parts of it reach GitHub - a filed ticket becomes an issue, its state follows as status: labels, a note on it becomes a comment - and what is already on GitHub comes back: the issues Cockpit has no ticket for join the board and Pipeline, the pull requests that name a ticket show on it, what is stuck there joins Needs attention. Read with the gh command line every few minutes.",
+  "every": 10,
+  "questions": [
+    {
+      "key": "repo",
+      "label": "Repository",
+      "type": "text",
+      "placeholder": "owner/name",
+      "help": "as gh names it; gh must already be logged in on the engine's machine"
+    },
+    {
+      "key": "you",
+      "label": "GitHub account for this project",
+      "type": "text",
+      "placeholder": "my-team-bot",
+      "help": "the login this project WORKS AS: shown as \"you\" on the cards, and - if gh on the engine's machine is logged into it - the account the feed reads with and every AI turn pushes as. gh keeps several logins; add one with: gh auth login"
+    },
+    {
+      "key": "people",
+      "label": "People",
+      "type": "text",
+      "placeholder": "octocat=Sam, hubot=Alex",
+      "help": "login=name, comma-separated. Everyone else appears by login."
+    },
+    {
+      "key": "lookbackDays",
+      "label": "Look back (days)",
+      "type": "text",
+      "default": "45",
+      "help": "closed tickets and merged PRs older than this are not fetched; open work always is"
+    },
+    {
+      "key": "localPrefix",
+      "label": "Local-model PR title prefix (optional)",
+      "type": "text",
+      "placeholder": "[LOCAL-R2]",
+      "help": "PRs whose title starts with this were opened by a local model and wait for a frontier to finish them"
+    }
+  ],
+  "cards": [],
+  "scan": "scan.js"
+}

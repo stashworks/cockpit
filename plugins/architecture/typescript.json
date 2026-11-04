@@ -1,0 +1,42 @@
+{
+  "_note": "Conventions the TypeScript scanner reads: how a route is declared, how it is guarded, how routers are mounted, how the web calls the API, what a table reference looks like, which table names carry sensitive data, what an admin URL looks like, and the MODULES - the business areas files belong to (first matching rule wins; narrow product areas first, broad platform buckets last). A project overrides any field in <project>/.cockpit/plugins/architecture.typescript.json with the same shape; `modules` there REPLACES this list. Regexes are strings; flags as given.",
+  "route": {
+    "re": "\\b(?<router>[A-Za-z_$][\\w$]*)\\s*\\.\\s*(?<method>get|post|put|patch|delete|options|head)\\s*\\(\\s*([\"'`])(?<path>\\/[^\"'`]*)\\3|\\b(?<router>route|app|router|r)\\s*\\(\\s*[\"'](?<method>GET|POST|PUT|PATCH|DELETE)[\"']\\s*,\\s*([\"'])(?<path>\\/[^\"']*)\\7|(?<router>\\[)\\s*[\"'](?<method>GET|POST|PUT|PATCH|DELETE)[\"']\\s*,\\s*([\"'])(?<path>\\/[^\"']*)\\11",
+    "flags": "g",
+    "_why": "three shapes: app.get('/x') (Hono/Express), route('GET', '/x') and a module's ['GET', '/x', handler] rows (the node-app starter). A route path always begins with / - without that anchor c.get(\"orgId\") made 1,398 'routes'. Named groups so the alternatives line up (Node 24 allows the same name per alternative)."
+  },
+  "permission": {
+    "re": "requirePermission\\s*\\(\\s*[\"'`]([^\"'`]+)[\"'`]",
+    "flags": "g"
+  },
+  "mount": {
+    "re": "\\.\\s*(?:route|use|mount)\\s*\\(\\s*([\"'`])([^\"'`]+)\\1\\s*,\\s*([A-Za-z_$][\\w$]*)",
+    "flags": "g"
+  },
+  "call": {
+    "re": "\\b(?:fetch|apiFetch|apiClient|apiWithHeaders|apiUpload|api)\\s*(?:<[^>]{0,120}>)?\\s*(?:\\.\\s*(?:get|post|put|patch|del|delete)\\s*(?:<[^>]{0,120}>)?)?\\s*\\(\\s*([\"'`])(\\/[^\"'`]{1,160})\\1",
+    "flags": "g",
+    "_why": "the generic between the name and the paren: api<T>(\"/api/v1/...\") - without it 23 calls were found in 1,398 files instead of 558"
+  },
+  "tableCall": {
+    "re": "\\.\\s*(?:from|selectFrom|insertInto|updateTable|deleteFrom)\\s*\\(\\s*[\"'`]([a-z_][a-z0-9_]{2,})[\"'`]",
+    "flags": "gi"
+  },
+  "authNote": "no requirePermission on the route; the API still applies requireAuth, so any signed-in role reaches it",
+  "sensitive": [
+    { "re": "^(financial|billing|invoice|payment|subscription|stripe|qbo)_", "value": "financial", "label": "money"
+    },
+    { "re": "(^|_)(user|member|contact|person|profile|employee)s?(_|$)", "value": "pii", "label": "personal data"
+    },
+    { "re": "(^|_)(auth|session|token|credential|secret|permission|role)s?(_|$)", "value": "secrets", "label": "credentials"
+    },
+    { "re": "(^|_)audit(_|$)", "value": "audit", "label": "audit trail", "band": "info"
+    }
+  ],
+  "adminish": "(^|\\/)(admin|settings|members|roles|permissions|billing|integrations|import|export)(\\/|$)",
+  "pageEntry": "(^|\\/)app\\/.*\\/page\\.(tsx|jsx|ts|js)$",
+  "modules": [
+    { "keyFrom": 2, "tier": "product", "re": "(^|\\/)modules\\/([^\\/]+)\\/", "_why": "the node-app starter: a module is a unit - modules\\<name>\\ is the feature. keyFrom = the capture group that names it. A project with its own areas replaces this list (e.g. 17 business areas by path regex)."
+    }
+  ]
+}

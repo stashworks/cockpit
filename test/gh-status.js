@@ -1,0 +1,40 @@
+// The ticket's stage (engine/ghstatus.js): the one rule for which column a GitHub ticket is in. node test/gh-status.js
+// The process's columns, written onto the ticket as stage:* labels.
+const s = require('../engine/ghstatus');
+let fails = 0; const ok = (n, c, x) => { console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? '  got ' + x : '')); if (!c) fails++; };
+const I = (o) => ({ number: 7, state: 'open', labels: [], assignees: ['owner-login'], ...o });
+const T = (o) => ({ issue: I(o.issue), item: o.item || null, prs: o.prs || [], uatMissing: !!o.uatMissing, prodKnown: o.prodKnown !== false, prodMissing: !!o.prodMissing, you: 'owner-login', otherLabel: o.otherLabel });
+const col = (o) => s.column(T(o));
+const Q = (o) => ({ id: 1, status: 'queued', turns: 0, agent: null, ...o });
+const PR = (o) => ({ number: 90, state: 'open', merged: null, updated: '2026-09-27T10:05:00Z', checks: 'pending', rest: {}, ...o });
+
+ok('closed → no stage', col({ issue: { state: 'closed' } }) === null);
+ok('nothing but the ticket → Open', col({}) === 'open');
+ok('queued, never tried → To work', col({ item: Q() }) === 'towork');
+ok('queued after a failed try, nobody named → Not completed', col({ item: Q({ turns: 1 }) }) === 'notdone');
+ok('queued after a failed try, handed to a coder → To work', col({ item: Q({ turns: 1, agent: 'claude-code-ar1' }) }) === 'towork');
+ok('running, no PR → Being coded', col({ item: Q({ status: 'running', claimedAt: '2026-09-27T10:00:00Z' }) }) === 'coding');
+ok('running, PR pushed this turn → Running tests', col({ item: Q({ status: 'running', claimedAt: '2026-09-27T10:00:00Z' }), prs: [PR()] }) === 'tests');
+ok('running, PR only from an earlier try → Being coded', col({ item: Q({ status: 'running', claimedAt: '2026-09-27T11:00:00Z' }), prs: [PR()] }) === 'coding');
+ok('merging → Running tests', col({ item: Q({ status: 'merging' }) }) === 'tests');
+ok('merged and on UAT → In UAT', col({ item: Q({ status: 'merged' }), prs: [PR({ state: 'merged', merged: '2026-09-27T10:10:00Z' })] }) === 'uat');
+ok('merged, UAT not updated yet → Running tests', col({ item: Q({ status: 'merged' }), prs: [PR({ state: 'merged' })], uatMissing: true }) === 'tests');
+ok('merged PART of it, queued for the rest → To work', col({ item: Q({ turns: 0 }), prs: [PR({ state: 'merged', rest: { 7: 'step 2' } })] }) === 'towork');
+ok('only a part merged, no item → Open (not In UAT)', col({ prs: [PR({ state: 'merged', rest: { 7: 'step 2' } })] }) === 'open');
+ok('a blocked: label → Blocked', col({ issue: { labels: ['blocked:waiting-on-owner'] }, item: Q({ status: 'blocked' }) }) === 'blocked');
+ok('needs:decision → Blocked', col({ issue: { labels: ['needs:decision'] } }) === 'blocked');
+ok('only waiting on the UAT update → Running tests', col({ issue: { labels: ['blocked:uat-deploy-failed'] }, item: Q({ status: 'merged' }) }) === 'tests');
+ok('assigned to someone else → Assigned to others', col({ issue: { assignees: ['other-dev'] } }) === 'others');
+ok('waiting on someone else → Assigned to others', col({ issue: { labels: ['blocked:waiting-on-someone-else'] } }) === 'others');
+ok('a project\'s own "waiting on another person" label → Assigned to others', col({ issue: { labels: ['blocked:waiting-on-sam'] }, otherLabel: 'blocked:waiting-on-sam' }) === 'others');
+ok('yours, held on a ticket → Waiting on a ticket (not others)', col({ issue: { labels: ['blocked:by-ticket'] } }) === 'waiting');
+ok('someone else\'s ticket held on a ticket → Assigned to others', col({ issue: { labels: ['blocked:by-ticket'], assignees: ['other-dev'] } }) === 'others');
+ok('held on a ticket, past coding → Blocked (the hold label still wins, as before)', col({ issue: { labels: ['blocked:by-ticket'] }, item: Q({ status: 'merged' }), prs: [PR({ state: 'merged' })] }) === 'blocked');
+ok('another person\'s ticket past coding (on UAT) → In UAT, not others', col({ issue: { assignees: ['other-dev'] }, item: Q({ status: 'merged' }), prs: [PR({ state: 'merged' })] }) === 'uat');
+ok('status:verified, not on prod → Waiting for prod merge', col({ issue: { labels: ['status:verified'] }, prs: [PR({ state: 'merged' })], prodMissing: true }) === 'prodmerge');
+ok('status:verified and on prod → Prod test', col({ issue: { labels: ['status:verified'] }, prs: [PR({ state: 'merged' })] }) === 'prodtest');
+ok('status:live → Prod test', col({ issue: { labels: ['status:live'] } }) === 'prodtest');
+ok('every column has a label', Object.keys(s.TITLE).every((k) => s.STAGE[k]));
+ok('a move says what moved it', /Being coded by claude-code-2 · try 2 of 3/.test(s.note('coding', T({ item: Q({ status: 'running', claimedBy: 'claude-code-2', turns: 2 }) }))));
+ok('a part merge says what is left', /remaining: step 2/.test(s.note('towork', T({ item: Q(), prs: [PR({ state: 'merged', merged: 'x', rest: { 7: 'step 2' } })] }))));
+console.log(fails ? fails + ' FAILED' : 'ALL PASSED'); process.exit(fails ? 1 : 0);

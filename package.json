@@ -1,0 +1,17 @@
+{
+  "name": "cockpit-engine",
+  "version": "0.1.0",
+  "description": "Cockpit — the engine and runtime. A project is a folder with a .cockpit inside it.",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}

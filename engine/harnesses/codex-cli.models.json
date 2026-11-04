@@ -1,0 +1,8 @@
+{
+  "_note": "The models Codex CLI may be asked for. Which names a ChatGPT account allows changes without notice and is not queryable (a guessed name was refused with 400 on 2026-09-16), so 'default' - no --model passed, Codex picks - comes first. The owner edits this file; it is reloaded when it changes.",
+  "models": [
+    { "id": "default",       "label": "Codex default (whatever the account allows)", "contextTokens": 400000 },
+    { "id": "gpt-5.1-codex", "label": "GPT-5.1 Codex",                              "contextTokens": 400000 },
+    { "id": "gpt-5.1",       "label": "GPT-5.1",                                    "contextTokens": 400000 }
+  ]
+}

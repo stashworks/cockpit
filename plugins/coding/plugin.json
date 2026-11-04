@@ -1,0 +1,12 @@
+{
+  "name": "coding",
+  "label": "Coding",
+  "group": "coding",
+  "purpose": "This project is code. On: the Tests tab - the environment runs against the live project (does it start, do its tests pass, is every flow proven, does the contract hold, DAST, migrations, sign-in, backup), the code rules read over the map, and the runs themselves. It starts running the moment it is switched on, against whatever is there. Nothing blocks; you work the results in the conversation beside them.",
+  "questions": [
+    { "key": "deployTo", "label": "Target folder", "type": "text", "default": "", "placeholder": "C:/projects/my-site-live", "help": "where Promote lands - the live copy. Brought to this folder's exact commit; files that are not in git there (config, uploads) are never touched. Leave empty if this project has no live copy.", "optional": true },
+    { "key": "deployUrl", "label": "Target url", "type": "text", "default": "", "placeholder": "https://my-site.local", "help": "where the live copy answers - checked after every promote: it must answer, or the target is put back where it was.", "optional": true }
+  ],
+  "cards": ["cards/tests-page.js"],
+  "libs": ["/plugins/architecture/cards/architecture.js"]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "tickets",
+  "label": "Tickets",
+  "group": "coding",
+  "purpose": "The process, for whoever wants one: a change is a ticket the AI drafts and you approve (on the board, or by telling it), its blast radius in front of you, a verdict on every turn, verified → Passed → promoted. With Coding on, Passed is the promote and a red line that blocks stops it. Off for a project that is not being worked this way.",
+  "every": 10,
+  "questions": [],
+  "cards": [
+    "cards/kit.js",
+    "cards/board.js",
+    "cards/pipeline.js",
+    "cards/attention.js",
+    "cards/deploys.js"
+  ],
+  "scan": "scan.js",
+  "questionsNote": "The four places a promote needs, typed in - never guessed. Everything else has a default: the repository's own main branch; promote by git the moment a ticket is passed; the live environment is called prod; nothing runs after the checkout. A project that needs different (e.g. observed deploys via GitHub Actions, uat before prod, after-commands) sets the keys branch, deployMode, deployTrigger, deployAfter, envName, versionUrls in .cockpit/plugins/tickets.json - still read."
+}

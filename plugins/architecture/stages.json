@@ -1,0 +1,236 @@
+{
+  "_note": "The test stages the Problems view is organised by. Each stage: where in the pipeline it runs (local = the AI's turn, verify = Cockpit after the turn, promote = the promote script before it promotes, post = after promote), what it tests, how, and its maturity: built (runs on every scan / run), partial (some of it), planned (designed, not built - Phase 3), later (after the projects are customer-facing). A Problems rule names its stage with `stage`; rules without one land in 'quality'. Order here is display order. `groups` are the headers the view is organised under, in order; a stage's runsAt names its group. `tests` under a stage are the tests it holds beyond the built checks - the to-build list shown on the page.",
+  "stages": [
+    {
+      "id": "lint",
+      "title": "Lint & format",
+      "runsAt": "local",
+      "track": "static",
+      "status": "built",
+      "what": "source style and syntax, per language, before anything runs",
+      "how": "the project's own eslint and prettier when it has them (a finding per file); on every project, formatting drift inside a file - two indent styles, mixed line endings, trailing blanks, no final newline - needs no tool",
+      "tests": []
+    },
+    {
+      "id": "sast",
+      "title": "SAST — static security",
+      "runsAt": "local",
+      "track": "static",
+      "status": "built",
+      "what": "security flaws readable in the source: secrets, injection shapes, unbounded reads, silent failure paths",
+      "how": "Cockpit's own pattern checks on every scan, and semgrep (from tools\\semgrep - a folder, no install; the rule packs for PHP, JavaScript, TypeScript, Node, Python, secrets, SQL injection, XSS and command injection kept beside it, so it runs offline) in every full test run. Findings sit here by severity; the file, the line and the rule are on each.",
+      "tests": []
+    },
+    {
+      "id": "quality",
+      "title": "Code quality — AI slop",
+      "runsAt": "local",
+      "track": "static",
+      "status": "built",
+      "what": "the habits of machine-written code: copy-paste twins, god files, stubs, debug noise, dead ends, tables nobody owns",
+      "how": "the scan's checks, thresholds per project in problems.json; a new habit = a lesson in the inbox = a new check; every static check has a planted instance in test/scan-fixtures.js that must fire exactly once (verify-the-verifier)",
+      "tests": []
+    },
+    {
+      "id": "architecture",
+      "title": "Architecture — shape & declarations",
+      "runsAt": "local",
+      "track": "static",
+      "status": "built",
+      "what": "the four-column shape (screen → action → logic → data, one column right) and the tags' claims against what the code does",
+      "how": "the scan: layer rules and the declaration checks from tags.json, on every scan",
+      "tests": []
+    },
+    {
+      "id": "sca",
+      "title": "SCA — dependencies",
+      "runsAt": "verify",
+      "track": "static",
+      "status": "built",
+      "what": "outdated or vulnerable open-source packages",
+      "how": "npm audit on every scan → vulnerable-dependency, band by severity; the lockfile committed",
+      "tests": []
+    },
+    {
+      "id": "secrets",
+      "title": "Secrets detection",
+      "runsAt": "verify",
+      "track": "static",
+      "status": "built",
+      "what": "credentials, keys and tokens in code, config, logs and the repo",
+      "how": "secret-in-code today; a committed .env, keys in config files and in logs still to add",
+      "tests": []
+    },
+    {
+      "id": "unit",
+      "title": "Unit tests",
+      "runsAt": "local",
+      "track": "runtime",
+      "status": "built",
+      "what": "a logic module does what it says, in isolation",
+      "how": "node --test on the project's test files, run by Cockpit's runner; a file counts as tested only when a test that PASSED names it",
+      "tests": [
+        {
+          "what": "coverage % per feature on the Features cards (from the run, not from names)",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "flow",
+      "title": "Functional — the flows clicked through",
+      "runsAt": "verify",
+      "track": "runtime",
+      "status": "built",
+      "what": "each README flow, in a real browser: open the screen, click what a person clicks, type what they type, read what they would see",
+      "how": "a browser test per flow (test/<feature>.<flow>.browser.test.js, engine/flow.js as the helper, Chromium from the engine folder - no install): its look half opens and reads the screens, its steps half clicks and types, on dev with dev's own database as the sandbox. Runs on switch-on, on every full run, and before a promote; after a promote the look half runs on prod - nothing that writes is ever pressed on the customer's data. A flow with only page-calling tests is 'flow not clicked through'; a flow with no test is 'flow without a test'; a red leaves a screenshot in .cockpit/tests/shots. Written first on every ticket (--flow): red against today's code, green when the work is done.",
+      "tests": []
+    },
+    {
+      "id": "contract",
+      "title": "API contract",
+      "runsAt": "verify",
+      "track": "runtime",
+      "status": "built",
+      "what": "every route keeps its response shape - what screens and external clients depend on",
+      "how": "after the test files, the runner starts the app on the test database (start: / url: under ## Tests, or server.js by default), records every parameterless GET route's status and JSON shape once (.cockpit/tests/contract.json), and diffs on every later run - a removed key, a changed type or status is contract-break on the route",
+      "tests": [
+        {
+          "what": "routes with parameters, given sample ids from the seed",
+          "status": "planned"
+        },
+        {
+          "what": "authenticated shapes, with a test login named under ## Tests",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "e2e",
+      "title": "Functional — the whole app, as a user",
+      "runsAt": "functional",
+      "track": "runtime",
+      "status": "built",
+      "what": "everything a person does with the app, from login through every feature, automated end to end",
+      "how": "test\\*.browser.test.js files drive the running app through Chromium (Playwright and the browser come from Cockpit's folder; a project installs nothing). Cockpit runs them after the app is up on the test database, APP_URL set; a failing flow fails the run. The starter's test\\health.browser.test.js is the shape.",
+      "tests": [
+        {
+          "what": "a browser test per flow in each feature README",
+          "status": "per project"
+        }
+      ]
+    },
+    {
+      "id": "permissions",
+      "title": "Permission matrix & auth probe",
+      "runsAt": "verify",
+      "track": "runtime",
+      "status": "partial",
+      "what": "every route × every role → the outcome its @auth declares; every door hit unauthenticated expects a refusal",
+      "how": "the auth probe runs with the app up: every door hit as nobody; refused (401/403/redirect) is right, 2xx on a door not declared public (## Tests public: …, or @auth none) is door-open. With login: and user: under ## Tests (the seed makes the test user), every door is hit again SIGNED IN - doors that still refuse are listed - and the contract and the input probe run behind the login too. The full matrix (every route × every role → what @auth declares) waits on @auth being required.",
+      "tests": [
+        {
+          "what": "@auth moves from reserved to required on actions; then every route × every role → the outcome @auth declares",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "migration",
+      "title": "Migration test",
+      "runsAt": "promote",
+      "track": "runtime",
+      "status": "built",
+      "what": "every migration runs up and down on a copy of the database before it meets dev",
+      "how": "test/setup-db.js --cycle on the test database when db/migrations has files: every migration up in order, down in reverse (a missing .down.sql stops it), up again - the runner runs it before the tests; a migration with no way back is a finding on every scan",
+      "tests": []
+    },
+    {
+      "id": "smoke",
+      "title": "Smoke — after promote",
+      "runsAt": "post",
+      "track": "runtime",
+      "status": "built",
+      "what": "the promoted environment is alive and one flow works",
+      "how": "scripts/promote.js (the starter) promotes main to prod and reads it back: the health endpoint answers ok with the promoted version, the shell serves, and one real flow runs through a browser against the promoted URL (## Tests smoke: names the files; default test/health.browser.test.js - read-only flows only, this is prod). On failure it restores the previous commit, restarts, reads back again, and writes the result to the dev checkout's .cockpit/tests/smoke.json - which the scan shows here.",
+      "tests": []
+    },
+    {
+      "id": "dast",
+      "title": "DAST — running app, from outside",
+      "runsAt": "verify",
+      "track": "security",
+      "status": "built",
+      "what": "an attacker's view of the running app, on the test database",
+      "how": "OWASP ZAP from Cockpit's own folder (no install: ZAP and its Java runtime are archives in tools\\dl, unpacked on first use) against the app on the TEST database, only when asked - /tests dast in the chat, or the button here. It seeds ZAP with every door the map knows, spiders, runs the active scan (SQLi, XSS, traversal, command injection, ...) and lists the alerts here by risk. Minutes, not seconds. Every ordinary test run also ends with Cockpit's own input probe: each door the map knows gets hostile payloads (SQL quote, script tag, path traversal, object-for-string, 20 KB, overflow, null) in every field it reads - as body, query and path - and is judged on its reaction: a crash, a leaked stack trace or SQL error, a reflected script, a stall.",
+      "tests": []
+    },
+    {
+      "id": "performance",
+      "title": "Performance & load",
+      "runsAt": "verify",
+      "track": "runtime",
+      "status": "built",
+      "what": "how long each door takes, alone and ten at once, against a budget",
+      "how": "every test run: each GET door is timed once in the contract pass, then the health door and the five slowest get ten requests at once. Budget from ## Tests (budget: 800ms; default 1000 ms); a burst p95 over three budgets is a fold. The previous run is kept beside, so a door twice as slow as last time is flagged.",
+      "tests": [
+        {
+          "what": "a scripted critical flow under sustained load (many users, minutes) against dev - when a project is customer-facing",
+          "status": "later"
+        }
+      ]
+    },
+    {
+      "id": "restore",
+      "title": "Backup & restore drill",
+      "runsAt": "post",
+      "track": "runtime",
+      "status": "built",
+      "what": "a backup that has been restored from, and backups that keep landing",
+      "how": "every test run ends with the drill on the TEST database: the project's scripts/backup.js writes a file and reports the row count per table, scripts/restore.js drops everything and applies the file and reports again; unequal is a failure. ## Backup folder: names where the real backups land (every: hours, default 24) - the scan flags an empty folder or a newest file past the schedule. Restoring into prod stays by hand (restore.js --prod).",
+      "tests": []
+    },
+    {
+      "id": "doctrine",
+      "title": "Process slips — the doctrine",
+      "runsAt": "process",
+      "track": "process",
+      "status": "built",
+      "what": "rules of working that got past the write-time gate",
+      "how": "the doctrine's Check lines, joined to the checks above; the rest judged where the text says",
+      "tests": []
+    }
+  ],
+  "groups": [
+    {
+      "id": "local",
+      "title": "Static — in the AI's turn",
+      "what": "read from the source, nothing running; the gate before code leaves the turn"
+    },
+    {
+      "id": "verify",
+      "title": "Verify — after the turn",
+      "what": "the app up against a test database; what a ticket must pass before it is verified"
+    },
+    {
+      "id": "promote",
+      "title": "Promote — before it promotes",
+      "what": "the promote script's checks on the step before prod"
+    },
+    {
+      "id": "post",
+      "title": "Post — after promote",
+      "what": "the promoted environment read back"
+    },
+    {
+      "id": "functional",
+      "title": "Functional — the whole app, as a user",
+      "what": "everything a person does, from login through every feature, driven end to end; the flows are the plan; still to build"
+    },
+    {
+      "id": "process",
+      "title": "Process — the doctrine",
+      "what": "rules of working that got past the write-time gate"
+    }
+  ]
+}

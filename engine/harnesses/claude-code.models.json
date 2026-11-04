@@ -1,0 +1,9 @@
+{
+  "_note": "The models Claude Code may be asked for. Claude Code has no command that lists what a subscription allows, so this is a file the owner edits, not code. Reloaded when it changes. id = what `claude --model` accepts (an alias like opus/sonnet/haiku, or a full model id).",
+  "models": [
+    { "id": "opus",             "label": "Claude Opus",                    "contextTokens": 200000 },
+    { "id": "sonnet",           "label": "Claude Sonnet",                  "contextTokens": 200000 },
+    { "id": "haiku",            "label": "Claude Haiku",                   "contextTokens": 200000 },
+    { "id": "claude-fable-5-1", "label": "Claude Fable 5.1 (separate pool)", "contextTokens": 200000 }
+  ]
+}

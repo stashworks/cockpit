@@ -1,0 +1,110 @@
+{
+  "_note": "The tagging matrix (docs/plan-verification-and-tickets.md, Phase 1; agreed 2026-09-18). The scan can read what code DOES; it cannot read what code is FOR. These tags supply the intent, declared IN the code (headers, feature READMEs) so anyone with a clone can read the architecture with no tool. Cockpit is one reader: the scanner verifies each declaration against what the code does, and every finding is the gap between the two. Only declared things are here; what Cockpit computes (reads/writes, reach, impact, churn, coverage, sensitivity by inference, the findings, which tickets touched a file) is never declared - a claim about those would be the lie the doctrine warns about. Precedence: hand-set in Cockpit (the owner's) > declared in the code > inferred by the scan. A tag enters through this file (a ticket); its appliesTo says whose job it is to carry it, so the next scan lists every file that should carry it and does not (tag-missing), and a tag not in this file is tag-unknown - nothing enters through a single file. The doc generator (ARCHITECTURE.md, the README template) and the scanner read this one source.",
+  "version": 1,
+  "header": {
+    "syntax": "one tag per line, or all on one line, in the language's comment form: // @feature tasks   -- @feature tasks (SQL)   <!-- @feature tasks @kind screen --> (HTML)",
+    "readFromLines": 40,
+    "pattern": "@(feature|kind|flow|purpose|auth|sensitive)\\s+([^@\\n]+)"
+  },
+  "readme": {
+    "path": "modules/<feature>/README.md",
+    "contract": ["an @feature <name> line", "one paragraph of purpose", "## Tables - one owned table per line", "## Flows - one per line: `- name: step → step → step` (a step is a screen or an action by name)", "## Seed - optional: what the flows need in the test database"],
+    "why": "a feature exists when its README exists: the README is the vocabulary entry, readable with no tool"
+  },
+  "kinds": {
+    "values": ["screen", "action", "logic", "data"],
+    "outside": ["test", "tool"],
+    "rule": "every arrow goes ONE column to the right: screen → action → logic → data. A screen never touches a table, a door (action) never queries, data never reaches back, one feature never writes another's table.",
+    "why": "the four kinds are the shape every feature keeps; tests, scripts and tooling are outside the shape and carry @kind test or @kind tool"
+  },
+  "tags": {
+    "feature": {
+      "declared": true, "required": true,
+      "appliesTo": "every file",
+      "usedFor": "grouping - what is this file part of; what features exist and what belongs to each; what am I touching with this ticket; which feature is riskiest, least tested, most changed",
+      "where": ["file header", "the feature's README"],
+      "values": "any name; a feature exists when its README exists; `shared` for code every feature uses; one feature per file",
+      "verify": ["tag-without-readme", "readme-without-files", "feature-twice", "file-untagged"],
+      "changesBy": "ticket"
+    },
+    "kind": {
+      "declared": true, "required": true,
+      "appliesTo": "every file",
+      "usedFor": "the shape - which of the four is this; is the code shaped as the architecture says; where does an arrow skip a column or run backwards",
+      "where": ["file header"],
+      "values": ["screen", "action", "logic", "data", "test", "tool"],
+      "verify": ["kind-disagrees", "kind-unknown"],
+      "changesBy": "the schema (this file)"
+    },
+    "flow": {
+      "declared": true, "required": true,
+      "appliesTo": ["screen", "action", "test"],
+      "usedFor": "paths and testing - which user paths does this file take part in; which test proves each path; if I change this file, which paths must be re-tested; which paths have no test; what does a person actually do that this code serves",
+      "where": ["file header of screens and tests (actions inherit from the screens that call them, and may declare too)", "the feature README's ## Flows"],
+      "values": "the README's list; comma-separated when a file takes part in several",
+      "verify": ["flow-without-test", "test-names-unknown-flow", "flow-not-in-feature", "flow-step-missing"],
+      "changesBy": "ticket"
+    },
+    "purpose": {
+      "declared": true, "required": "new files; tag-missing on old ones until rolled out",
+      "appliesTo": "every file",
+      "usedFor": "understanding - what is this file for, in one sentence, so anyone opening it knows before reading the code",
+      "where": ["file header"],
+      "values": "one sentence",
+      "verify": ["purpose-missing", "purpose-long"],
+      "changesBy": "ticket"
+    },
+    "tables": {
+      "declared": true, "required": true,
+      "appliesTo": "the feature's README",
+      "usedFor": "ownership - who owns this table; who else writes it, and should not; which feature's data does this change reach",
+      "where": ["the feature README's ## Tables"],
+      "values": "the table names the feature owns, one per line",
+      "verify": ["owned-table-written-elsewhere", "listed-table-undefined", "table-unowned"],
+      "changesBy": "ticket"
+    },
+    "auth": {
+      "declared": true, "required": false, "reserved": true,
+      "appliesTo": ["action"],
+      "usedFor": "intended access - what is this door supposed to require, so the scan can compare with what it does",
+      "where": ["action file header"],
+      "values": ["none", "user", "admin", "<a permission name>"],
+      "verify": ["auth-disagrees", "tag-missing"],
+      "changesBy": "the schema (to require it), then ticket"
+    },
+    "sensitive": {
+      "declared": true, "required": false, "reserved": true,
+      "appliesTo": ["data"],
+      "usedFor": "intended exposure - what a table holds when its name and columns do not say; overrides inference",
+      "where": ["schema file header", "the feature README's ## Tables"],
+      "values": ["money", "personal", "credentials"],
+      "verify": ["tag-missing"],
+      "changesBy": "the schema, then ticket"
+    }
+  },
+  "computedNotDeclared": {
+    "why": "a claim about these would be the lie the doctrine warns about; the scan reads them from the code and they ARE the verification",
+    "list": ["reads/writes", "reach", "impact", "churn", "tested / coverage", "sensitivity by inference", "problems", "layer as used", "which tickets touched a file (git log - every commit and PR names its ticket)"]
+  },
+  "findings": {
+    "_note": "the verify ids above; each becomes a rule in problems.json under a Declarations block when the reader lands (Phase 2)",
+    "tag-without-readme": "a file names a feature that has no README",
+    "readme-without-files": "a feature README with no file carrying its @feature",
+    "feature-twice": "a file declaring two features",
+    "file-untagged": "a file with no @feature (the migration backlog on an old codebase)",
+    "kind-disagrees": "the declared kind disagrees with what the file does - a logic file declaring routes, a screen reading a table",
+    "kind-unknown": "a @kind value not in this schema",
+    "flow-without-test": "a flow in a README that no test names",
+    "test-names-unknown-flow": "a test naming a flow no README defines",
+    "flow-not-in-feature": "a screen naming a flow its feature does not define",
+    "flow-step-missing": "a flow step naming a screen or action that does not exist",
+    "purpose-missing": "a file with no @purpose (new files: required; old files: the rollout backlog)",
+    "purpose-long": "a @purpose longer than a sentence (info)",
+    "owned-table-written-elsewhere": "a README's owned table written from another feature",
+    "listed-table-undefined": "a README lists a table nothing defines",
+    "table-unowned": "a table no README lists",
+    "auth-disagrees": "the declared requirement disagrees with the check the code makes",
+    "tag-missing": "a file that should carry a tag (by appliesTo) and does not - the rollout list when a tag is added",
+    "tag-unknown": "a @tag not in this schema - nothing enters through a single file"
+  }
+}

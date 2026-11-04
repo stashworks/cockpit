@@ -1,0 +1,12 @@
+# {{TITLE}} - what never enters the repo
+.env
+.env.*
+!.env.example
+node_modules/
+*.log
+logs/
+data/
+db/dumps/
+*.sql.zip
+.DS_Store
+Thumbs.db

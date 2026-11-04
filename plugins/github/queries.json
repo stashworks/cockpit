@@ -1,0 +1,46 @@
+{
+  "_note": "The reads the Tickets cards make of the GitHub mirror, by name: GET /api/p/<id>/plugins/github/q/<name>?param=... Parameters are bound positionally in the order `params` lists them (a name may repeat). Read-only by construction; edit here, no restart.",
+  "meta": {
+    "sql": "SELECT key, value FROM gh_meta",
+    "params": []
+  },
+  "attention": {
+    "sql": "SELECT id, kind, rank, who, number, what, title, text, url FROM gh_attention ORDER BY rank, who, number",
+    "params": []
+  },
+  "pipeline": {
+    "sql": "SELECT number, title, CASE WHEN state = 'closed' THEN 'done' ELSE stage END AS stage, stage_rule, module, assignees, labels, updated, closed, url, EXISTS (SELECT 1 FROM gh_pr p WHERE p.state = 'merged' AND p.tickets LIKE '%\"number\":' || gh_issue.number || ',%') AS merged, (SELECT p.number FROM gh_pr p WHERE p.state = 'open' AND p.tickets LIKE '%\"number\":' || gh_issue.number || ',%' ORDER BY p.created DESC LIMIT 1) AS pr_open, (SELECT p.checks FROM gh_pr p WHERE p.state = 'open' AND p.tickets LIKE '%\"number\":' || gh_issue.number || ',%' ORDER BY p.created DESC LIMIT 1) AS pr_checks, (SELECT p.updated FROM gh_pr p WHERE p.state = 'open' AND p.tickets LIKE '%\"number\":' || gh_issue.number || ',%' ORDER BY p.created DESC LIMIT 1) AS pr_updated FROM gh_issue WHERE state = 'open' OR (state = 'closed' AND closed >= datetime('now', '-2 days')) ORDER BY updated DESC",
+    "params": [],
+    "_note": "open issues, plus the ones closed in the last two days so the board can show them in complete before they drop to Recent deploys (closing an issue made it vanish off the board instead of completing). merged / pr_open / pr_checks: whether a PR naming it ever merged (complete vs done), and the open one a coder's tests are running on (2026-09-24)"
+  },
+  "ticket": {
+    "sql": "SELECT number, title, state, author, assignees, labels, module, created, updated, closed, url, body, stage, stage_rule FROM gh_issue WHERE number = ?",
+    "params": [
+      "number"
+    ]
+  },
+  "ticket-prs": {
+    "sql": "SELECT number, title, state, draft, author, head, created, merged, merge_commit, checks, review, mergeable, url, tickets FROM gh_pr WHERE tickets LIKE ? ORDER BY created DESC",
+    "params": [
+      "like"
+    ]
+  },
+  "prs-open": {
+    "sql": "SELECT number, title, draft, author, head, created, updated, checks, review, mergeable, url, tickets FROM gh_pr WHERE state = 'open' ORDER BY created",
+    "params": []
+  },
+  "deploys": {
+    "sql": "SELECT number, title, author, merged, merge_commit, url, tickets FROM gh_pr WHERE state = 'merged' AND merged IS NOT NULL ORDER BY merged DESC LIMIT 200",
+    "params": []
+  },
+  "envs": {
+    "sql": "SELECT env, at, version, ok, note FROM gh_env WHERE at = (SELECT MAX(at) FROM gh_env AS e2 WHERE e2.env = gh_env.env) ORDER BY env",
+    "params": []
+  },
+  "env-history": {
+    "sql": "SELECT env, at, version, ok FROM gh_env WHERE env = ? ORDER BY at DESC LIMIT 50",
+    "params": [
+      "env"
+    ]
+  }
+}

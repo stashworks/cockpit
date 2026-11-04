@@ -1,0 +1,49 @@
+# dependencies
+node_modules/
+
+# runtime data - the engine writes these as it runs; none of it belongs in the repository
+projects.json
+fleet.json
+turns.jsonl
+engine.json
+logs/
+run/
+backups/
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# secrets and local settings
+.env
+.env.*
+!.env.example
+# coders' own Claude logins (engine/fleet.js addAgent) - account tokens, never committed
+accounts/
+
+# portable test tooling, downloaded on demand (tools/fetch.js)
+browsers/
+tools/dl/
+tools/dl-fetch.log
+tools/zap/
+tools/semgrep/
+
+# screenshots the AI takes with `cli look`
+docs/look/
+
+# backups and editor leftovers
+*.bak
+*.bak*
+*~
+Thumbs.db
+.DS_Store
+
+# a project's own Cockpit folder, if the engine folder is ever opened as a project
+.cockpit/
+
+# Setup.cmd's private Node copy
+runtime/
+
+# the Home project the engine makes on first start (index.js) - your own desk, never committed
+/home/
