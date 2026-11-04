@@ -7,10 +7,13 @@
 Cockpit brings your projects, documents, research, and AI conversations together in one workspace, without requiring you to move your files into another platform or surrender control of your data.
 
 Connect an existing folder, choose an AI model, and get to work. Plan a vacation, organize research, explore ideas, manage projects, or build software. Cockpit works with the files you already have, keeping your conversations and AI-generated content on your own computer.
+You decide which models to use and what information they can access.
 
 **Switch AI models without starting over.** Begin a conversation with one model, switch to another halfway through, and continue where you left off. Your conversation history belongs to Cockpit, not to any particular AI provider.
 
 **Work online or completely offline.** Connect to cloud AI providers when you want their capabilities, or use local models to work without an internet connection. You decide which models to use and what information they can access.
+
+![Cockpit personal AI workspace (illustrative demo)](cockpit-demo.png)
 
 ## Why Cockpit?
 
@@ -37,9 +40,10 @@ Cockpit isn't tied to one profession, one workflow, or one AI provider.
 
 ## Requirements
 
-- **Node.js 24 or newer** (Optional - Cockpit uses the built-in `node:sqlite`).
-- **git** Optional - on the PATH.
-- **At least one installed AI**, Download and install first. Logged in as the user that runs Cockpit:
+- **Windows:** No separate Node.js installation required. Cockpit downloads a private Node.js 24 runtime when needed.
+- **Git:** Optional for general use; recommended for software development.
+- **AI:** At least one supported AI provider or local model must be configured. The setup wizard helps you get started.
+  Download and install first. Logged in as the user that runs Cockpit:
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`claude`), and/or
   - [Codex CLI](https://github.com/openai/codex) (`codex`), and/or
   - Pi (the `pi` coding-agent CLI) with [Ollama](https://ollama.com) for local models.
@@ -95,7 +99,7 @@ the PATH at your next sign-in.
 ## Install and run
 
 ```
-git clone <this repository> cockpit
+git clone https://github.com/stashworks/cockpit.git
 cd cockpit
 npm install          # one dependency: playwright, used only for browser checks
 node index.js        # or: npm start
@@ -186,9 +190,29 @@ node test/scope.js            # and so on, one file at a time
 
 ## State of the project
 
-Early. Cockpit is used every day by one person, on their own projects, and it changes quickly. Expect
-rough edges, Windows-first paths and conventions, and design records in `docs/` that describe some
-things before they were built. Issues and ideas are welcome; there is no stable API yet.
+Cockpit is an early-stage project in active development and daily use.
+It supports personal organization, research, planning, and AI-assisted
+software development.
+
+The application is currently Windows-first. Other platforms have not
+been fully tested. Expect occasional rough edges, evolving features,
+and changes to the interface.
+
+Feedback, bug reports, and ideas are welcome. There is no stable API yet.
+
+## Privacy and data ownership
+
+Cockpit stores conversations, project information, and AI-generated
+files locally on your computer.
+
+When using a local AI model, processing can take place entirely offline.
+
+When using a cloud AI provider, relevant conversation content and
+any files shared with that model may be transmitted to the provider
+for processing.
+
+Your files remain under your control, and you choose which AI
+providers to use.
 
 ## License
 
